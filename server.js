@@ -44,7 +44,7 @@ io.configure('production', function() {
   ]);
 });
 
-var port = process.env.PORT || 8080;
+var port = process.env['PORT_WWW'] || 3000;
 app.listen(port);
 
 var rooms = {
