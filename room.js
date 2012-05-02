@@ -193,6 +193,7 @@ Room.prototype._reset = function() {
   });
 
   this.round = 0;
+  clearInterval(this.countdownInterval);
   this.emit('reset');
 };
 

@@ -110,7 +110,7 @@ var Game = function(width, height) {
   };
 };
 
-var collisionThreshold = 150;
+var collisionThreshold = 175;
 
 var Curve = function(color, width, height) {
   this.color = color;
