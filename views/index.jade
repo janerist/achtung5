@@ -1,0 +1,45 @@
+
+extends layout
+
+block content
+    .hero-unit(style='text-align: center;')
+        h1 Achtung die Kurve!
+        p Join a room to play
+
+        ul#rooms.hide(data-bind='foreach: rooms')
+            li
+                a(data-bind='attr: { id: id, title: id, href: isFull() ? "#" : "/rooms/" + id, class: isFull() ? "btn btn-large btn-danger" : "btn btn-large btn-inverse" }')
+                    h2                           
+                        span(data-bind='text: id')                        
+                    p
+                        i.icon-user.icon-white
+                        | 
+                        span(data-bind='text: players().length')
+                        | /
+                        span(data-bind='text: maxPlayers')                             
+
+                div.hide(data-bind='attr: { id: "popover-" + id }')
+                    h3.full(data-bind='if: isFull()') Full
+                    h4(data-bind='if: players().length > 0') Players:
+                    h4(data-bind='if: players().length == 0') No players
+                    ul.players(data-bind='foreach: players')
+                        li
+                            i.icon-user
+                            | 
+                            span(data-bind='text: nickname')
+            
+        #loadingrooms 
+            i.icon-refresh
+            | Loading rooms...    
+
+    .row
+        .span6
+            include includes/howtoplay
+        .span6            
+            h2 Screenshot:
+            img(src='/img/screenshot.png', style='border: 4px solid #444;border-radius: 5px;')
+
+
+append scripts
+    script(src='/js/index.js')
+        

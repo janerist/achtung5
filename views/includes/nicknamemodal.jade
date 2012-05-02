@@ -1,0 +1,14 @@
+#nicknamemodal.modal.hide
+    .modal-header
+        h3 Joining #{roomId}
+    .modal-body
+        .form-horizontal
+            .control-group
+                .control-label
+                    label(for='nickname', autofocus) Nickname:
+                .controls
+                    input#nickname(type='text', maxlength='20')
+                    p You need a nickname to play.
+    .modal-footer
+        a.btn(href='/') Cancel
+        a#joinbutton.btn.btn-primary(href='#') Join

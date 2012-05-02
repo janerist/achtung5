@@ -1,0 +1,92 @@
+#rooms {
+    margin: 0;
+    padding: 0;
+}
+
+#rooms li {
+    list-style-type: none;
+    display: inline-block;
+    padding: 1em;    
+}
+
+#rooms li a {
+    width: 150px;
+}
+
+#rooms li a i {
+    vertical-align: baseline;
+}
+
+.players li {
+    list-style-type: none;
+}
+
+.full {
+    color: #ff0000;
+}
+
+#gamecanvas {
+    background-color: #000;
+}
+
+#scoreboardstatus {
+    padding: 5px;    
+    text-align: center;
+}
+
+#playerlist {
+    height: 190px;
+    padding: 5px;
+}
+
+#playerlist table {
+    table-layout: fixed;
+}
+
+#chatscroll {
+    height: 190px;
+    overflow-y: auto;    
+    margin-bottom: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+#chatmessages {
+    padding: 0;
+    margin: 0;
+}
+
+#chatmessages li {
+    list-style-type: none;
+}
+
+#chatmessages li.announcement {
+    font-weight: bold;
+}
+
+#chatmessages li.chatmessage {
+
+}
+
+#chatmessages li.chatmessage span.from {
+    font-weight: bold;    
+}
+
+#statusline {
+    text-align: center;
+}
+
+.countdown {
+    font-weight: bold;
+    font-size: 200%;
+}
+
+.points {
+    color: #00ff00;
+}
+
+.version {
+    font-size: 75%;
+    color: #ff0000;
+}
