@@ -83,7 +83,7 @@ Room.prototype.removePlayer = function(nickname) {
   }
 };
 
-Room.prototype.setPlayerDead = function(nickname) {
+Room.prototype.setPlayerDead = function(nickname, fn) {
   var player = this.players[nickname];
   if (player) {
     player.isDead = true;
@@ -94,14 +94,14 @@ Room.prototype.setPlayerDead = function(nickname) {
     });
 
     var points = this.playerCountAtStartOfRound - playersAlive.length;
+    fn(points);
+
     player.score = player.score + points;
 
     if (playersAlive.length == 1) {
       var winner = this.players[playersAlive[0].nickname];
       this._endRound(winner);
     }
-
-    return points;
   }
 };
 

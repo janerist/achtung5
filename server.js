@@ -207,8 +207,10 @@ Please choose a different nickname.';
       return;
     }
     
-    var points = room.setPlayerDead(socket.nickname);
-    io.sockets.in(socket.roomId).emit('playerDead', socket.nickname, points);
+    room.setPlayerDead(socket.nickname, function(points) {
+      io.sockets.in(socket.roomId).emit('playerDead', socket.nickname, points);
+    });
+    
   });
 
   socket.on('leftKeyDown', function() {
