@@ -194,16 +194,22 @@ Please choose a different nickname.';
   });
 
   socket.on('dead', function() {
+    if (!socket.roomId) {
+      return;
+    }
+    
     var room = rooms[socket.roomId];
-    var player = room.players[socket.nickname];
-    var score = player.score;
-    room.setPlayerDead(socket.nickname);
+    if (!room) {
+      return;
+    }
 
-    var points = player.score - score;
-
+    if (!room.gameSimulation.isRunning) {
+      return;
+    }
+    
+    var points = room.setPlayerDead(socket.nickname);
     io.sockets.in(socket.roomId).emit('playerDead', socket.nickname, points);
   });
-
 
   socket.on('leftKeyDown', function() {
     setInput(socket.nickname, 'leftKeyDown');
@@ -229,8 +235,6 @@ Please choose a different nickname.';
 
     room.setInput(nickname, input);
   }
-
-
 });
 
 function sendRoomUpdate (room) {

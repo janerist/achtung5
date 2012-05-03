@@ -93,14 +93,15 @@ Room.prototype.setPlayerDead = function(nickname) {
       return p.isPlaying && !p.isDead;
     });
 
-    player.score = player.score + (this.playerCountAtStartOfRound - playersAlive.length);
+    var points = this.playerCountAtStartOfRound - playersAlive.length;
+    player.score = player.score + points;
 
     if (playersAlive.length == 1) {
       var winner = this.players[playersAlive[0].nickname];
       this._endRound(winner);
     }
 
-    return player;
+    return points;
   }
 };
 
@@ -109,10 +110,10 @@ Room.prototype._startNewRound = function() {
     p.isDead = false;
   });
 
-  var countdownTimeLeft = Room.ROUND_COUNTDOWN_DURATION;
-
   this.state = 'preround';
-  this.emit('roundStarting', countdownTimeLeft);
+  this.emit('roundStarting', Room.ROUND_COUNTDOWN_DURATION);
+
+  var countdownTimeLeft = Room.ROUND_COUNTDOWN_DURATION;
   
   var that = this;
   this.countdownInterval = setInterval(function() {
