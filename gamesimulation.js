@@ -52,11 +52,6 @@ var GameSimulation = function() {
 
     self.emit('snapshot', snapshot);
   };
-
-  this.addInput = function(nickname, input) {
-    this.curves[nickname].isLeftKeyDown = input.leftKeyDown;
-    this.curves[nickname].isRightKeyDown = input.rightKeyDown;
-  };
 };
 
 GameSimulation.WIDTH = 770;

@@ -8,6 +8,42 @@ ko.applyBindings(statusArea, document.getElementById('statusline'));
 ko.applyBindings(scoreboard, document.getElementById('scoreboard'));
 ko.applyBindings(chat, document.getElementById('chatarea'));
 
+window.keydown = {};
+
+$(document).keydown(function(e) {
+  var code = e.keyCode ? e.keyCode : e.which;
+  if (code == 37 && !keydown.left) {
+    keydown.left = true;
+    if (game.isRunning) {
+      socket.emit('leftKeyDown');
+    }
+  }
+
+  if (code == 39 && !keydown.right) {
+    keydown.right = true;
+    if (game.isRunning) {
+      socket.emit('rightKeyDown');
+    }
+  }
+});
+
+$(document).keyup(function(e) {
+  var code = e.keyCode ? e.keyCode : e.which;
+  if (code == 37 && keydown.left) {
+    keydown.left = false;
+    if (game.isRunning) {
+      socket.emit('leftKeyUp');
+    }
+  }
+
+  if (code == 39 && keydown.right) {
+    keydown.right = false;
+    if (game.isRunning) {
+      socket.emit('rightKeyUp');
+    }
+  }
+});
+
 $('#nickname').on('keyup', function(e) {
   if (e.keyCode == 13) {
     setNickname();

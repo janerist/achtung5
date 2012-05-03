@@ -1,26 +1,3 @@
-window.keydown = {};
-
-$(document).keydown(function(e) {
-  var code = e.keyCode ? e.keyCode : e.which;
-  if (code == 37) {
-    keydown.left = true;
-  }
-
-  if (code == 39) {
-    keydown.right = true;
-  }
-});
-
-$(document).keyup(function(e) {
-  var code = e.keyCode ? e.keyCode : e.which;
-  if (code == 37) {
-    keydown.left = false;
-  }
-
-  if (code == 39) {
-    keydown.right = false;
-  }
-});
 
 var Game = function(width, height) {
   var self = this;
@@ -31,12 +8,14 @@ var Game = function(width, height) {
   this.curves = {};
 
   this.drawRate = 1000.0/33.0;
-  this.inputRate = 1000.0/33.0;
+  this.correctionThreshold = 7.0;
 
   this.canvas = document.getElementById('gamecanvas');
   this.context = this.canvas.getContext('2d');
 
   this.snapshotCounter = 0;
+
+  this.isRunning = false;
 
   this.start = function(players) {
     self.curves = {};
@@ -47,29 +26,36 @@ var Game = function(width, height) {
       }
     });
 
-    self.inputInterval = setInterval(self.sendInput, self.inputRate);
     self.drawInterval = setInterval(self.draw, self.drawRate);
-
     self.clearCanvas();
+    self.isRunning = true;
   };
 
   this.stop = function() {
-    clearInterval(self.inputInterval);
     clearInterval(self.drawInterval);
+    self.isRunning = false;
   };
 
   this.addSnapshot = function(snapshot) {
     $.each(snapshot, function(nickname, s) {
       var curve = self.curves[nickname];
-      var updatePos = self.snapshotCounter % 40 === 0;
-      if (!curve.x || updatePos) {
+      
+      if (!curve.x) {
         curve.x = s.x;
+      } else {
+        if (Math.abs(s.x - curve.x) >= this.correctionThreshold) {
+          curve.x = s.x;
+        }
       }
 
-      if (!curve.y || updatePos) {
+      if (!curve.y) {
         curve.y = s.y;
+      } else {
+        if (Math.abs(s.y - curve.y) >= this.correctionThreshold) {
+          curve.y = s.y;
+        }
       }
-
+      
       curve.angle = s.angle;
     });
 
@@ -87,27 +73,7 @@ var Game = function(width, height) {
   this.clearCanvas = function() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   };
-
-  this.sendInput = function() {
-    var leftKeyDown = window.keydown.left;
-    var rightKeyDown = window.keydown.right;
-
-    if (self.previousInput) {
-      if (leftKeyDown == self.previousInput.leftKeyDown &&
-        rightKeyDown == self.previousInput.rightKeyDown) {
-        return;
-      }
-    }
-
-    var input = {
-      leftKeyDown: leftKeyDown,
-      rightKeyDown: rightKeyDown
-    };
-
-    socket.emit('input', input);
-
-    self.previousInput = input;
-  };
+ 
 };
 
 var collisionThreshold = 175;
@@ -117,6 +83,7 @@ var Curve = function(color, width, height) {
   this.angle = 0.0;
   this.size = 3;
   this.speed = 2.2;
+  this.steerSpeed = 5.4;
   this.isActive = true;
 
   this.width = width;

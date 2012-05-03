@@ -204,14 +204,33 @@ Please choose a different nickname.';
     io.sockets.in(socket.roomId).emit('playerDead', socket.nickname, points);
   });
 
-  socket.on('input', function(input) {
+
+  socket.on('leftKeyDown', function() {
+    setInput(socket.nickname, 'leftKeyDown');
+  });
+
+  socket.on('rightKeyDown', function() {
+    setInput(socket.nickname, 'rightKeyDown');
+  });
+
+  socket.on('leftKeyUp', function() {
+    setInput(socket.nickname, 'leftKeyUp');
+  });
+
+  socket.on('rightKeyUp', function() {
+    setInput(socket.nickname, 'rightKeyUp');
+  });
+
+  function setInput(nickname, input) {
     var room = rooms[socket.roomId];
     if (!room) {
       return;
     }
 
-    room.addInput(socket.nickname, input);
-  });
+    room.setInput(nickname, input);
+  }
+
+
 });
 
 function sendRoomUpdate (room) {

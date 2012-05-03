@@ -194,8 +194,17 @@ Room.prototype._reset = function() {
   this.emit('reset');
 };
 
-Room.prototype.addInput = function(nickname, input) {
-  this.gameSimulation.addInput(nickname, input);
+Room.prototype.setInput = function(nickname, input) {
+  var curve = this.gameSimulation.curves[nickname];
+  if (input == 'leftKeyDown') {
+    curve.isLeftKeyDown = true;
+  } else if (input == 'rightKeyDown') {
+    curve.isRightKeyDown = true;
+  } else if (input == 'leftKeyUp') {
+    curve.isLeftKeyDown = false;
+  } else if (input == 'rightKeyUp') {
+    curve.isRightKeyDown = false;
+  }
 };
 
 module.exports = Room;
