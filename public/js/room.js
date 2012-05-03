@@ -104,9 +104,9 @@ function playerJoined(player) {
   scrollToBottom();
 }
 
-function playerLeft(player) {
-  scoreboard.removePlayer(player);
-  chat.addAnnouncement(player.nickname + ' has left the room.');
+function playerLeft(nickname) {
+  scoreboard.removePlayer(nickname);
+  chat.addAnnouncement(nickname + ' has left the room.');
   scrollToBottom();
 }
 

@@ -22,7 +22,7 @@ app.configure('development', function() {
 });
 
 app.configure('production', function() {
-  app.use(express.errorHandler());  
+  app.use(express.errorHandler());
 });
 
 io.configure(function() {
@@ -180,13 +180,8 @@ Please choose a different nickname.';
       return;
     }
 
-    var player = room.removePlayer(socket.nickname);
-    if (!player) {
-      return;
-    }
-
-    socket.broadcast.to(room.id).emit('playerLeft', player);
-
+    room.removePlayer(socket.nickname);
+    socket.broadcast.to(room.id).emit('playerLeft', socket.nickname);
     sendRoomUpdate(room);
   });
 

@@ -69,7 +69,6 @@ Room.prototype.addPlayer = function(nickname) {
 
 Room.prototype.removePlayer = function(nickname) {
   var player = this.players[nickname];
-
   if (player) {
     delete this.players[nickname];
     this.colors.splice(0, 0, player.color);
@@ -82,8 +81,6 @@ Room.prototype.removePlayer = function(nickname) {
       }
     }
   }
-
-  return player;
 };
 
 Room.prototype.setPlayerDead = function(nickname) {

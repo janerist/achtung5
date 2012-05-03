@@ -17,9 +17,9 @@ var ScoreboardViewModel = function() {
     self.players.push(new Player(player));
   };
 
-  this.removePlayer = function(player) {
+  this.removePlayer = function(nickname) {
     self.players.remove(function(p) {
-        return p.nickname == player.nickname;
+        return p.nickname == nickname;
     });
 
     self._sortPlayers();

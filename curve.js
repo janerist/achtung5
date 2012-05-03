@@ -8,16 +8,13 @@ var Curve = function(width, height) {
   this.steerSpeed = 5.4;
   this.x = Math.random() * width;
   this.y = Math.random() * height;
-  console.log(width);
-  console.log(height);
+
   this.angle = 0.0;
   this.isActive = true;
 
   this.isLeftKeyDown = false;
   this.isRightKeyDown = false;
 };
-
-Curve.COLLISION_THRESHOLD = 200;
 
 Curve.prototype.update = function() {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
