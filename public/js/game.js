@@ -71,7 +71,14 @@ var Game = function(width, height) {
   };
 
   this.clearCanvas = function() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    self.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  };
+
+  this.setPlayerDead = function(nickname) {
+    var c = self.curves[nickname];
+    if (c) {
+      c.isActive = false;
+    }
   };
  
 };

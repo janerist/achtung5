@@ -148,6 +148,7 @@ function playerLeft(nickname) {
 
 function playerDead(nickname, points) {
   scoreboard.setPlayerDead(nickname, points);
+  game.setPlayerDead(nickname);
 }
 
 function chatMessage(from, message) {
