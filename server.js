@@ -22,9 +22,7 @@ app.configure('development', function() {
 });
 
 app.configure('production', function() {
-  app.use(express.errorHandler());
-  app.use(express.cookieParser());
-  app.use(express.session({ secret: 'ooosecret'}));
+  app.use(express.errorHandler());  
 });
 
 io.configure(function() {
@@ -102,24 +100,9 @@ app.get('/rooms/:room', function(req, res) {
     res.redirect('/');
   } else {
     res.render('room', {
-      roomId: room.id,
-      nickname: req.session ? req.session.nickname : null
+      roomId: room.id
     });
   }
-});
-
-app.post('/setnickname', function(req, res) {
-  if (req.session) {
-    req.session.nickname = req.body.nickname;
-  }
-  res.send();
-});
-
-app.post('/forgetnickname', function(req, res) {
-  if (req.session) {
-    delete req.session.nickname;
-  }
-  res.send();
 });
 
 io.sockets.on('connection', function(socket) {

@@ -1,4 +1,5 @@
-var game,
+var nickname,
+    game,
     statusArea = new StatusViewModel(),
     scoreboard = new ScoreboardViewModel(),
     chat = new ChatViewModel();
@@ -15,13 +16,8 @@ $('#nickname').on('keyup', function(e) {
 
 $('#joinbutton').on('click', setNickname);
 
-if (!nickname) {
-  statusArea.setStatus('Awaiting nickname...');
-  askForNickname();
-} else {
-  $('#nickname').val(nickname);
-  init();
-}
+statusArea.setStatus('Awaiting nickname...');
+askForNickname();
 
 function askForNickname() {
   $('#nicknamemodal').modal({
@@ -54,11 +50,6 @@ function init() {
       return;
     }
 
-    // Store nickname in session
-    $.post('/setnickname', $.param({ nickname: nickname}));
-    $('#navnick').show();
-    $('#navnick span').first().html(nickname);
-
     // Set game status
     setStatus(room.state, room.round, room.scoreLimit);
 
@@ -81,13 +72,10 @@ function init() {
     });
 
     // Set canvas dimensions
-    $('#gamecanvas').css({
-      width: room.width + 'px',
-      height: room.height + 'px'
-    })
-    .prop('width', room.width)
-    .prop('height', room.height)
-    .fadeIn();
+    $('#gamecanvas')
+      .prop('width', room.width)
+      .prop('height', room.height)
+      .fadeIn();
 
     game = new Game(room.width, room.height);
 

@@ -20,17 +20,6 @@ html
                         | achtung5 
                         span.version alpha
 
-                    .btn-group.pull-right
-                        a#navnick.btn.dropdown-toggle(data-toggle='dropdown', href='#')                            
-                            i.icon-user
-                            | 
-                            span #{nickname}
-                            | 
-                            span.caret
-                        ul.dropdown-menu
-                            li
-                                a#forgetme(href='#') Forget me
-
         .container
             block content
             hr
@@ -45,17 +34,6 @@ html
             script(src='/js/lib/bootstrap.min.js')
             script(src='/js/lib/knockout-2.0.0.min.js')
             script(src='/socket.io/socket.io.js')
-            script
-                var nickname = '#{nickname}';
-                if (!nickname) {
-                    $('#navnick').hide();
-                }
-
-                $('#forgetme').on('click', function() {
-                    $.post('/forgetnickname', {}, function() {
-                        $('#navnick').hide();
-                    });
-                });
 
                 
              
