@@ -53,8 +53,6 @@ Room.prototype.addPlayer = function(nickname) {
     throw Error('The room is full');
   }
 
-  // TODO: check if round is in progress
-
   var color = this.colors.splice(0, 1)[0];
 
   var player = new Player(nickname, color);
@@ -197,6 +195,10 @@ Room.prototype._reset = function() {
 
 Room.prototype.setInput = function(nickname, input) {
   var curve = this.gameSimulation.curves[nickname];
+  if (!curve) {
+    return;
+  }
+
   if (input == 'leftKeyDown') {
     curve.isLeftKeyDown = true;
   } else if (input == 'rightKeyDown') {

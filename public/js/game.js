@@ -8,12 +8,11 @@ var Game = function(width, height) {
   this.curves = {};
 
   this.drawRate = 1000.0/33.0;
-  this.correctionThreshold = 7.0;
+  this.smoothTime = 0.1;
+  this.correctionThreshold = 5;
 
   this.canvas = document.getElementById('gamecanvas');
   this.context = this.canvas.getContext('2d');
-
-  this.snapshotCounter = 0;
 
   this.isRunning = false;
 
@@ -37,29 +36,38 @@ var Game = function(width, height) {
   };
 
   this.addSnapshot = function(snapshot) {
+    var diffX, diffY;
     $.each(snapshot, function(nickname, s) {
       var curve = self.curves[nickname];
+      
+      if (!curve.isActive) {
+        return;
+      }
       
       if (!curve.x) {
         curve.x = s.x;
       } else {
-        if (Math.abs(s.x - curve.x) >= this.correctionThreshold) {
+        diffX = s.x - curve.x;
+        if (Math.abs(diffX) > self.correctionThreshold) {
           curve.x = s.x;
+        } else {
+          curve.x = curve.x + diffX * self.smoothTime;
         }
       }
 
       if (!curve.y) {
         curve.y = s.y;
       } else {
-        if (Math.abs(s.y - curve.y) >= this.correctionThreshold) {
+        diffY = s.y - curve.y;
+        if (Math.abs(diffY) > self.correctionThreshold) {
           curve.y = s.y;
+        } else {
+          curve.y = curve.y + diffY * self.smoothTime;
         }
       }
       
       curve.angle = s.angle;
     });
-
-    self.snapshotCounter = self.snapshotCounter + 1;
   };
 
   this.draw = function() {
@@ -122,17 +130,11 @@ Curve.prototype.draw = function(context) {
   context.beginPath();
   context.moveTo(this.x, this.y);
   context.lineTo(this.x + dx, this.y + dy);
+  
   context.stroke();
 
+  
   this.x = this.x + dx;
   this.y = this.y + dy;
-
-  this.x = this.x < 0 ? this.width : this.x;
-  this.x = this.x > this.width ? 0 : this.x;
-  this.y = this.y < 0 ? this.height : this.y;
-  this.y = this.y > this.height ? 0 : this.y;
 };
-
-
-
 

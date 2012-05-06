@@ -41,13 +41,11 @@ var GameSimulation = function() {
   this.sendSnapshot = function() {
     var snapshot = {};
     _.each(self.curves, function(c, nickname) {
-      if (c.isActive) {
         snapshot[nickname] = {
           x: c.x,
           y: c.y,
           angle: c.angle
-        };
-      }
+      };
     });
 
     self.emit('snapshot', snapshot);

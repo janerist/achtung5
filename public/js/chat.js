@@ -1,5 +1,3 @@
-var MESSAGES_TO_KEEP = 50;
-
 var Message = function() {
   this.type = null;
   this.from = null;
@@ -29,7 +27,10 @@ var ChatViewModel = function() {
   };
 
   this.limitMessages = ko.computed(function() {
-    while (self.messages().length > MESSAGES_TO_KEEP)
+    while (self.messages().length > ChatViewModel.MESSAGES_TO_KEEP) {
       self.messages.remove(self.messages()[0]);
+    }
   });
 };
+
+ChatViewModel.MESSAGES_TO_KEEP = 50;
