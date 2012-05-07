@@ -7,9 +7,9 @@ var Game = function(width, height) {
 
   this.curves = {};
 
-  this.drawRate = 1000.0/33.0;
+  this.drawRate = 1000.0/60.0;
   this.smoothTime = 0.1;
-  this.correctionThreshold = 5;
+  this.correctionThreshold = 3;
 
   this.canvas = document.getElementById('gamecanvas');
   this.context = this.canvas.getContext('2d');
@@ -66,6 +66,7 @@ var Game = function(width, height) {
         }
       }
       
+      curve.gap = s.gap;
       curve.angle = s.angle;
     });
   };
@@ -91,20 +92,21 @@ var Game = function(width, height) {
  
 };
 
-var collisionThreshold = 175;
+var collisionThreshold = 255;
 
 var Curve = function(color, width, height) {
   this.color = color;
   this.angle = 0.0;
   this.size = 3;
-  this.speed = 2.2;
-  this.steerSpeed = 5.4;
+  this.speed = 0.9;
+  this.steerSpeed = 3.0;
   this.isActive = true;
 
   this.width = width;
   this.height = height;
 
   this.checkCollision = false;
+  this.gap = false;
 };
 
 Curve.prototype.draw = function(context) {
@@ -116,23 +118,24 @@ Curve.prototype.draw = function(context) {
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed;
 
   if (this.checkCollision) {
-    var imagedata = context.getImageData(this.x + dx, this.y + dy, 1, 1);
-    if (imagedata.data[3] > collisionThreshold) {
+    var imagedata = context.getImageData(this.x + (dx*2), this.y + (dy*2), 1, 1);
+    if (imagedata.data[3] >= collisionThreshold) {
       this.isActive = false;
       socket.emit('dead');
     }
   }
-
-  context.fillStyle = this.color;
-  context.strokeStyle = this.color;
-  context.lineWidth = this.size;
-
-  context.beginPath();
-  context.moveTo(this.x, this.y);
-  context.lineTo(this.x + dx, this.y + dy);
-  
-  context.stroke();
-
+ 
+  if (!this.gap) {
+    context.fillStyle = this.color;
+    context.strokeStyle = context.fillStyle;
+    context.lineWidth = this.size;
+    context.lineCap = 'round';
+    
+    context.beginPath();
+    context.moveTo(this.x, this.y);
+    context.lineTo(this.x + dx, this.y + dy);
+    context.stroke();
+  }
   
   this.x = this.x + dx;
   this.y = this.y + dy;
