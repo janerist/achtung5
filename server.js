@@ -12,7 +12,7 @@ app.configure(function() {
   app.set('view options', { layout: false });
   app.use(express.bodyParser());
   app.use(express.methodOverride());
-  
+
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -71,7 +71,7 @@ _.each(rooms, function(room) {
     io.sockets.in(room.id)
       .emit('gameEnded', room.state, winner);
   });
-  
+
   room.on('countdown', function(timeLeft) {
     io.sockets.in(room.id)
       .emit('countdown', timeLeft);
@@ -85,6 +85,10 @@ _.each(rooms, function(room) {
   room.on('snapshot', function(snapshot) {
     io.sockets.in(room.id)
       .emit('snapshot', snapshot);
+  });
+
+  room.on('playerDead', function(nickname, points) {
+    io.sockets.in(room.id).emit('playerDead', nickname, points);
   });
 });
 
@@ -124,13 +128,13 @@ io.sockets.on('connection', function(socket) {
   socket.on('joinRoom', function(roomId, nickname, fn) {
     var room = rooms[roomId],
         msg;
-    
+
     if (!room) {
       msg = 'no room with id ' + roomId;
       fn(msg);
       return;
     }
-    
+
     if (room.players[nickname]) {
       msg = nickname + ' is already in this room. \
 Please choose a different nickname.';
@@ -153,7 +157,7 @@ Please choose a different nickname.';
     socket.nickname = nickname;
     socket.roomId = roomId;
     socket.join(roomId);
-    
+
     var player = room.addPlayer(nickname);
 
     fn(null, {
@@ -174,7 +178,7 @@ Please choose a different nickname.';
     if (!socket.roomId) {
       return;
     }
-    
+
     var room = rooms[socket.roomId];
     if (!room) {
       return;
@@ -191,26 +195,6 @@ Please choose a different nickname.';
     }
 
     socket.broadcast.to(socket.roomId).emit('chatmessage', from, message);
-  });
-
-  socket.on('dead', function() {
-    if (!socket.roomId) {
-      return;
-    }
-    
-    var room = rooms[socket.roomId];
-    if (!room) {
-      return;
-    }
-
-    if (!room.gameSimulation.isRunning) {
-      return;
-    }
-    
-    room.setPlayerDead(socket.nickname, function(points) {
-      io.sockets.in(socket.roomId).emit('playerDead', socket.nickname, points);
-    });
-    
   });
 
   socket.on('leftKeyDown', function() {

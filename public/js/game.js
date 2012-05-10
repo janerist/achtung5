@@ -1,4 +1,3 @@
-
 var Game = function(width, height) {
   var self = this;
 
@@ -19,10 +18,7 @@ var Game = function(width, height) {
   this.start = function(players) {
     self.curves = {};
     $.each(players, function(i, p) {
-      self.curves[p.nickname] = new Curve(p.color, width, height);
-      if (nickname == p.nickname) {
-        self.curves[p.nickname].checkCollision = true;
-      }
+      self.curves[p.nickname] = new Curve(p.color, self.width, self.height);
     });
 
     self.drawInterval = setInterval(self.draw, self.drawRate);
@@ -97,13 +93,11 @@ var Curve = function(color, width, height) {
   this.angle = 0.0;
   this.size = 3;
   this.speed = 1.3;
-  this.steerSpeed = 3.4;
+  this.steerSpeed = 3.5;
   this.isActive = true;
 
   this.width = width;
   this.height = height;
-
-  this.checkCollision = false;
 };
 
 Curve.prototype.draw = function(context) {
@@ -114,14 +108,6 @@ Curve.prototype.draw = function(context) {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed;
 
-  if (this.checkCollision) {
-    var imagedata = context.getImageData(this.x + (dx*2), this.y + (dy*2), 1, 1);
-    if (imagedata.data[3] >= collisionThreshold) {
-      this.isActive = false;
-      socket.emit('dead');
-    }
-  }
-
   context.fillStyle = this.color;
   context.strokeStyle = context.fillStyle;
   context.lineWidth = this.size;
@@ -131,7 +117,6 @@ Curve.prototype.draw = function(context) {
   context.moveTo(this.x, this.y);
   context.lineTo(this.x + dx, this.y + dy);
   context.stroke();
-
 
   this.x = this.x + dx;
   this.y = this.y + dy;

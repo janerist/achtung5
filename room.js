@@ -32,6 +32,12 @@ var Room = function(id) {
   this.gameSimulation.on('snapshot', function(snapshot) {
     that.emit('snapshot', snapshot);
   });
+
+  this.gameSimulation.on('playerDead', function(nickname) {
+    that.setPlayerDead(nickname, function(points) {
+      that.emit('playerDead', nickname, points);
+    });
+  });
 };
 
 Room.MAX_PLAYERS = 6;
@@ -100,6 +106,8 @@ Room.prototype.setPlayerDead = function(nickname, fn) {
       var winner = this.players[playersAlive[0].nickname];
       this._endRound(winner);
     }
+
+    return points;
   }
 };
 
@@ -116,7 +124,7 @@ Room.prototype._startNewRound = function() {
   var that = this;
   this.countdownInterval = setInterval(function() {
     countdownTimeLeft = countdownTimeLeft - 1;
-    if (countdownTimeLeft <= 0) {
+    if (countdownTimeLeft === 0) {
       clearInterval(that.countdownInterval);
       that.state = 'round';
       that.playerCountAtStartOfRound = that.getPlayerCount();
@@ -165,7 +173,7 @@ Room.prototype._endGame = function(winner) {
   var countdownTimeLeft = Room.GAME_OVER_COUNTDOWN_DURATION;
   this.countdownInterval = setInterval(function() {
     countdownTimeLeft = countdownTimeLeft - 1;
-    if (countdownTimeLeft <= 0) {
+    if (countdownTimeLeft === 0) {
       clearInterval(that.countdownInterval);
       _.each(that.players, function(p) {
         p.isPlaying = false;

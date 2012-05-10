@@ -1,6 +1,8 @@
 var _ = require('underscore'),
     util = require('util');
 
+var grid = [];
+
 var GameSimulation = function() {
   var self = this;
 
@@ -10,14 +12,26 @@ var GameSimulation = function() {
   this.updateRate = 1000.0/60.0;
   this.snapshotRate = 1000.0/20.0;
 
+  this.activeCurves = 0;
+
   this.start = function(players) {
     self.curves = {};
     _.each(players, function(p) {
-      self.curves[p.nickname] = new Curve(GameSimulation.WIDTH, GameSimulation.HEIGHT);
+      self.curves[p.nickname] = new Curve();
       p.isPlaying = true;
     });
 
     self.isRunning = true;
+    self.activeCurves = _.size(self.curves);
+
+    grid = [];
+    for (var y = 0; y < GameSimulation.HEIGHT; y += Curve.DEFAULT_SIZE) {
+      var row = [];
+      for (var x = 0; x < GameSimulation.WIDTH; x += Curve.DEFAULT_SIZE) {
+        row.push(0);
+      }
+      grid.push(row);
+    }
 
     self.updateInterval = setInterval(self.update, self.updateRate);
     self.snapshotInterval = setInterval(self.sendSnapshot, self.snapshotRate);
@@ -30,9 +44,13 @@ var GameSimulation = function() {
   };
 
   this.update = function() {
-    _.each(self.curves, function(c) {
-      if (c.isActive) {
+    _.each(self.curves, function(c, nickname) {
+      if (self.activeCurves > 1 && c.isActive) {
         c.update();
+        if (!c.isActive) {
+          self.emit('playerDead', nickname);
+          self.activeCurves = self.activeCurves - 1;
+        }
       }
     });
   };
@@ -57,8 +75,9 @@ GameSimulation.HEIGHT = 480;
 util.inherits(GameSimulation, require('events').EventEmitter);
 
 var Curve = function() {
-  this.speed = 1.3;
-  this.steerSpeed = 3.4;
+  this.speed = Curve.DEFAULT_SPEED;
+  this.steerSpeed = Curve.DEFAULT_STEERSPEED;
+  this.size = Curve.DEFAULT_SIZE;
   this.x = Math.random() * GameSimulation.WIDTH;
   this.y = Math.random() * GameSimulation.HEIGHT;
 
@@ -74,6 +93,10 @@ var Curve = function() {
 
   this.prepareNextGap();
 };
+
+Curve.DEFAULT_SIZE = 2;
+Curve.DEFAULT_SPEED = 1.3;
+Curve.DEFAULT_STEERSPEED = 3.5;
 
 Curve.prototype.update = function() {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
@@ -100,6 +123,23 @@ Curve.prototype.update = function() {
   this.x = this.x > GameSimulation.WIDTH ? 0 : this.x;
   this.y = this.y < 0 ? GameSimulation.HEIGHT : this.y;
   this.y = this.y > GameSimulation.HEIGHT ? 0 : this.y;
+
+  var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
+  var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
+
+  if (withinBounds(gridX, gridY)) {
+    grid[gridY][gridX] = 1;
+  }
+
+  var collGridX = Math.round((this.x + dx*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
+  var collGridY = Math.round((this.y + dy*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
+
+  if (withinBounds(collGridX, collGridY)) {
+    var val = grid[collGridY][collGridX];
+    if (val === 1) {
+        this.isActive = false;
+    }
+  }
 };
 
 Curve.prototype.prepareNextGap = function() {
@@ -110,5 +150,10 @@ Curve.prototype.prepareNextGap = function() {
       that.gap = true;
   }, 3000);
 };
+
+function withinBounds(x, y) {
+  return x >= 0 && x < GameSimulation.WIDTH/Curve.DEFAULT_SIZE &&
+    y >= 0 && y < GameSimulation.HEIGHT/Curve.DEFAULT_SIZE;
+}
 
 module.exports = GameSimulation;
