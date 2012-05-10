@@ -112,7 +112,7 @@ Room.prototype._startNewRound = function() {
   this.emit('roundStarting', Room.ROUND_COUNTDOWN_DURATION);
 
   var countdownTimeLeft = Room.ROUND_COUNTDOWN_DURATION;
-  
+
   var that = this;
   this.countdownInterval = setInterval(function() {
     countdownTimeLeft = countdownTimeLeft - 1;
@@ -124,7 +124,7 @@ Room.prototype._startNewRound = function() {
       that.round = that.round + 1;
 
       that.gameSimulation.start(that.players);
-    
+
       that.emit('roundStarted');
     } else {
       that.emit('countdown', countdownTimeLeft);

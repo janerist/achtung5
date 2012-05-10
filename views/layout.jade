@@ -9,15 +9,15 @@ html
             body {
                 padding-top: 60px;
                 padding-bottom: 40px;
-            }    
+            }
         link(rel='stylesheet', href='/css/bootstrap-responsive.css')
         link(rel='stylesheet', href='/css/style.css')
     body
         .navbar.navbar-fixed-top
             .navbar-inner
                 .container
-                    a.brand(href='/') 
-                        | achtung5 
+                    a.brand(href='/')
+                        | achtung5
                         span.version alpha
 
         .container
@@ -26,13 +26,10 @@ html
             footer
                 div.pull-left &copy; 2012 Jan-Erik Strøm &nbsp;&nbsp;
                 iframe.pull-left(src='http://markdotto.github.com/github-buttons/github-btn.html?user=janerist&repo=achtung5&type=watch',
-                    allowtransparency='true', frameborder='0', scrolling='0', width='132px', height='20px')             
+                    allowtransparency='true', frameborder='0', scrolling='0', width='132px', height='20px')
 
         block scripts
-            script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js')
+            script(src='/js/lib/jquery-1.7.2.min.js')
             script(src='/js/lib/bootstrap.min.js')
             script(src='/js/lib/knockout-2.0.0.min.js')
             script(src='/socket.io/socket.io.js')
-
-                
-             

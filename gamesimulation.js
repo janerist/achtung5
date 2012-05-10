@@ -9,7 +9,7 @@ var GameSimulation = function() {
 
   this.updateRate = 1000.0/60.0;
   this.snapshotRate = 1000.0/20.0;
-  
+
   this.start = function(players) {
     self.curves = {};
     _.each(players, function(p) {
@@ -43,8 +43,7 @@ var GameSimulation = function() {
         snapshot[nickname] = {
           x: c.x,
           y: c.y,
-          angle: c.angle,
-          gap: c.gap > 0
+          angle: c.angle
       };
     });
 
@@ -58,8 +57,8 @@ GameSimulation.HEIGHT = 480;
 util.inherits(GameSimulation, require('events').EventEmitter);
 
 var Curve = function() {
-  this.speed = 0.9;
-  this.steerSpeed = 3.0;
+  this.speed = 1.3;
+  this.steerSpeed = 3.4;
   this.x = Math.random() * GameSimulation.WIDTH;
   this.y = Math.random() * GameSimulation.HEIGHT;
 
@@ -70,7 +69,9 @@ var Curve = function() {
   this.isLeftKeyDown = false;
   this.isRightKeyDown = false;
 
-  this.gapDuration = 13;
+  this.gap = false;
+  this.gapSize = 10;
+
   this.prepareNextGap();
 };
 
@@ -86,6 +87,12 @@ Curve.prototype.update = function() {
     this.angle = this.angle + this.steerSpeed;
   }
 
+  if (this.gap) {
+      this.x = this.x + dx*this.gapSize;
+      this.y = this.y + dy*this.gapSize;
+      this.prepareNextGap();
+  }
+
   this.x = this.x + dx;
   this.y = this.y + dy;
 
@@ -93,25 +100,15 @@ Curve.prototype.update = function() {
   this.x = this.x > GameSimulation.WIDTH ? 0 : this.x;
   this.y = this.y < 0 ? GameSimulation.HEIGHT : this.y;
   this.y = this.y > GameSimulation.HEIGHT ? 0 : this.y;
-
-  if (this.gap > 0) {
-    this.gap = this.gap - 1;
-    if (this.gap === 0) {
-      this.prepareNextGap();
-    }
-  }
 };
 
 Curve.prototype.prepareNextGap = function() {
   var that = this;
+  that.gap = false;
+
   setTimeout(function() {
-    // don't create gap if player is turning
-    if (that.isLeftKeyDown || that.isRightKeyDown) {
-      that.prepareNextGap();
-    } else {
-      that.gap = that.gapDuration;
-    }
-  }, 3000 + Math.random()*1000);
+      that.gap = true;
+  }, 3000);
 };
 
 module.exports = GameSimulation;

@@ -8,7 +8,7 @@ var Game = function(width, height) {
   this.curves = {};
 
   this.drawRate = 1000.0/60.0;
-  this.smoothTime = 0.1;
+  this.smoothTime = 0.25;
   this.correctionThreshold = 3;
 
   this.canvas = document.getElementById('gamecanvas');
@@ -39,11 +39,11 @@ var Game = function(width, height) {
     var diffX, diffY;
     $.each(snapshot, function(nickname, s) {
       var curve = self.curves[nickname];
-      
+
       if (!curve.isActive) {
         return;
       }
-      
+
       if (!curve.x) {
         curve.x = s.x;
       } else {
@@ -65,8 +65,7 @@ var Game = function(width, height) {
           curve.y = curve.y + diffY * self.smoothTime;
         }
       }
-      
-      curve.gap = s.gap;
+
       curve.angle = s.angle;
     });
   };
@@ -89,7 +88,6 @@ var Game = function(width, height) {
       c.isActive = false;
     }
   };
- 
 };
 
 var collisionThreshold = 255;
@@ -98,15 +96,14 @@ var Curve = function(color, width, height) {
   this.color = color;
   this.angle = 0.0;
   this.size = 3;
-  this.speed = 0.9;
-  this.steerSpeed = 3.0;
+  this.speed = 1.3;
+  this.steerSpeed = 3.4;
   this.isActive = true;
 
   this.width = width;
   this.height = height;
 
   this.checkCollision = false;
-  this.gap = false;
 };
 
 Curve.prototype.draw = function(context) {
@@ -124,19 +121,18 @@ Curve.prototype.draw = function(context) {
       socket.emit('dead');
     }
   }
- 
-  if (!this.gap) {
-    context.fillStyle = this.color;
-    context.strokeStyle = context.fillStyle;
-    context.lineWidth = this.size;
-    context.lineCap = 'round';
-    
-    context.beginPath();
-    context.moveTo(this.x, this.y);
-    context.lineTo(this.x + dx, this.y + dy);
-    context.stroke();
-  }
-  
+
+  context.fillStyle = this.color;
+  context.strokeStyle = context.fillStyle;
+  context.lineWidth = this.size;
+  context.lineCap = 'round';
+
+  context.beginPath();
+  context.moveTo(this.x, this.y);
+  context.lineTo(this.x + dx, this.y + dy);
+  context.stroke();
+
+
   this.x = this.x + dx;
   this.y = this.y + dy;
 };
