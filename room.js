@@ -19,7 +19,9 @@ var Room = function(id) {
     '#0000ff', // blue
     '#ffff00', // yellow
     '#00ffff', // cyan
-    '#ffffff'  // white
+    '#ffffff', // white
+    '#ff00ff', // pink
+    '#ff8000' // orange
   ];
   //possible states: pregame, preRound, round, postgame
   this.state = 'pregame';
@@ -40,7 +42,7 @@ var Room = function(id) {
   });
 };
 
-Room.MAX_PLAYERS = 6;
+Room.MAX_PLAYERS = 8;
 Room.ROUND_COUNTDOWN_DURATION = 5;
 Room.GAME_OVER_COUNTDOWN_DURATION = 10;
 

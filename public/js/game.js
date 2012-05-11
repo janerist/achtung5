@@ -33,8 +33,8 @@ var Game = function(width, height) {
 
   this.addSnapshot = function(snapshot) {
     var diffX, diffY;
-    $.each(snapshot, function(nickname, s) {
-      var curve = self.curves[nickname];
+    $.each(snapshot, function(nick, s) {
+      var curve = self.curves[nick];
 
       if (!curve.isActive) {
         return;
@@ -63,6 +63,7 @@ var Game = function(width, height) {
       }
 
       curve.angle = s.angle;
+
     });
   };
 

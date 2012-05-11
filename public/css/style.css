@@ -6,7 +6,7 @@
 #rooms li {
     list-style-type: none;
     display: inline-block;
-    padding: 1em;    
+    padding: 1em;
 }
 
 #rooms li a {
@@ -30,12 +30,12 @@
 }
 
 #scoreboardstatus {
-    padding: 5px;    
+    padding: 5px;
     text-align: center;
 }
 
 #playerlist {
-    height: 190px;
+    min-height: 190px;
     padding: 5px;
 }
 
@@ -45,7 +45,7 @@
 
 #chatscroll {
     height: 190px;
-    overflow-y: auto;    
+    overflow-y: auto;
     margin-bottom: 5px;
     padding: 5px;
     border: 1px solid #ccc;
@@ -70,7 +70,7 @@
 }
 
 #chatmessages li.chatmessage span.from {
-    font-weight: bold;    
+    font-weight: bold;
 }
 
 #statusline {
