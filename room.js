@@ -43,6 +43,7 @@ var Room = function(id) {
 };
 
 Room.MAX_PLAYERS = 8;
+Room.REQUIRED_PLAYERS = 2;
 Room.ROUND_COUNTDOWN_DURATION = 5;
 Room.GAME_OVER_COUNTDOWN_DURATION = 10;
 
@@ -66,7 +67,7 @@ Room.prototype.addPlayer = function(nickname) {
   var player = new Player(nickname, color);
   this.players[nickname] = player;
 
-  if (this.state == 'pregame' && this.getPlayerCount() > 1) {
+  if (this.state == 'pregame' && this.getPlayerCount() >= Room.REQUIRED_PLAYERS) {
       this._startNewRound();
   }
 
@@ -79,7 +80,7 @@ Room.prototype.removePlayer = function(nickname) {
     delete this.players[nickname];
     this.colors.splice(0, 0, player.color);
 
-    if (this.getPlayerCount() < 2) {
+    if (this.getPlayerCount() < Room.REQUIRED_PLAYERS) {
       if (this.state != 'pregame') {
         this.state = 'pregame';
         this._reset();

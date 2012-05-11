@@ -21,6 +21,12 @@ app.configure('development', function() {
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true}));
 });
 
+app.configure('debug', function() {
+  Room.REQUIRED_PLAYERS = 1;
+  Room.ROUND_COUNTDOWN_DURATION = 2;
+  Room.GAME_OVER_COUNTDOWN_DURATION = 2;
+});
+
 app.configure('production', function() {
   app.use(express.errorHandler());
 });

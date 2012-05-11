@@ -45,11 +45,15 @@ var GameSimulation = function() {
 
   this.update = function() {
     _.each(self.curves, function(c, nickname) {
-      if (self.activeCurves > 1 && c.isActive) {
+      if (c.isActive) {
         c.update();
         if (!c.isActive) {
-          self.emit('playerDead', nickname);
-          self.activeCurves = self.activeCurves - 1;
+          if (self.activeCurves > 1) {
+            self.emit('playerDead', nickname);
+            self.activeCurves = self.activeCurves - 1;
+          } else {
+            c.isActive = true;
+          }
         }
       }
     });
