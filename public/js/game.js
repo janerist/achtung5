@@ -63,7 +63,7 @@ var Game = function(width, height) {
       }
 
       curve.angle = s.angle;
-
+      curve.gap = s.gap;
     });
   };
 
@@ -97,8 +97,13 @@ var Curve = function(color, width, height) {
   this.steerSpeed = 3.5;
   this.isActive = true;
 
+  this.gap = false;
+
   this.width = width;
   this.height = height;
+
+  this.gapPositions = [];
+  this.fillGap = false;
 };
 
 Curve.prototype.draw = function(context) {
@@ -109,8 +114,36 @@ Curve.prototype.draw = function(context) {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed;
 
-  context.fillStyle = this.color;
-  context.strokeStyle = context.fillStyle;
+  if (this.fillGap) {
+    context.strokeStyle = 'black';
+    context.lineWidth = this.size + 1;
+    $.each(this.gapPositions, function(i, gapPosition) {
+      context.beginPath();
+      context.moveTo(gapPosition.x, gapPosition.y);
+      context.lineTo(gapPosition.x + gapPosition.dx, gapPosition.y + gapPosition.dx);
+      context.stroke();
+    });
+
+    this.gapPositions.length = 0;
+  }
+
+  if (this.gap) {
+    context.strokeStyle = '#555555';
+    this.gapPositions.push({
+      x: this.x,
+      y: this.y,
+      dx: dx,
+      dy: dy
+    });
+    this.fillGap = false;
+  } else {
+    if (!this.fillGap) {
+      this.fillGap = true;
+    }
+
+    context.strokeStyle = this.color;
+  }
+
   context.lineWidth = this.size;
   context.lineCap = 'round';
 
@@ -118,6 +151,7 @@ Curve.prototype.draw = function(context) {
   context.moveTo(this.x, this.y);
   context.lineTo(this.x + dx, this.y + dy);
   context.stroke();
+
 
   this.x = this.x + dx;
   this.y = this.y + dy;

@@ -65,7 +65,8 @@ var GameSimulation = function() {
         snapshot[nickname] = {
           x: c.x,
           y: c.y,
-          angle: c.angle
+          angle: c.angle,
+          gap: c.gapDuration > 0
       };
     });
 
@@ -86,14 +87,12 @@ var Curve = function() {
   this.y = Math.random() * GameSimulation.HEIGHT;
 
   this.angle = 0;
-  this.gap = 0;
   this.isActive = true;
 
   this.isLeftKeyDown = false;
   this.isRightKeyDown = false;
 
-  this.gap = false;
-  this.gapSize = 10;
+  this.gapDuration = 0;
 
   this.prepareNextGap();
 };
@@ -101,6 +100,7 @@ var Curve = function() {
 Curve.DEFAULT_SIZE = 2;
 Curve.DEFAULT_SPEED = 1.3;
 Curve.DEFAULT_STEERSPEED = 3.5;
+Curve.GAP_DURATION = 15;
 
 Curve.prototype.update = function() {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
@@ -114,10 +114,11 @@ Curve.prototype.update = function() {
     this.angle = this.angle + this.steerSpeed;
   }
 
-  if (this.gap) {
-      this.x = this.x + dx*this.gapSize;
-      this.y = this.y + dy*this.gapSize;
+  if (this.gapDuration > 0) {
+    this.gapDuration = this.gapDuration - 1;
+    if (this.gapDuration === 0) {
       this.prepareNextGap();
+    }
   }
 
   this.x = this.x + dx;
@@ -128,11 +129,13 @@ Curve.prototype.update = function() {
   this.y = this.y < 0 ? GameSimulation.HEIGHT : this.y;
   this.y = this.y > GameSimulation.HEIGHT ? 0 : this.y;
 
-  var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
-  var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
+  if (this.gapDuration === 0) {
+    var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
+    var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
 
-  if (withinBounds(gridX, gridY)) {
-    grid[gridY][gridX] = 1;
+    if (withinBounds(gridX, gridY)) {
+      grid[gridY][gridX] = 1;
+    }
   }
 
   var collGridX = Math.round((this.x + dx*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
@@ -148,10 +151,9 @@ Curve.prototype.update = function() {
 
 Curve.prototype.prepareNextGap = function() {
   var that = this;
-  that.gap = false;
 
   setTimeout(function() {
-      that.gap = true;
+      that.gapDuration = Curve.GAP_DURATION;
   }, 3000);
 };
 
