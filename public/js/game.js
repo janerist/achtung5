@@ -63,7 +63,17 @@ var Game = function(width, height) {
       }
 
       curve.angle = s.angle;
+
+      var oldGapValue = curve.gap;
       curve.gap = s.gap;
+
+      if (!oldGapValue && curve.gap) {
+        curve.onGapStart();
+      }
+
+      if (oldGapValue && !curve.gap) {
+        curve.onGapEnd();
+      }
     });
   };
 
@@ -109,13 +119,17 @@ var Curve = function(color, width, height) {
   this.steerSpeed = 3.5;
   this.isActive = true;
 
-  this.gap = false;
-
   this.width = width;
   this.height = height;
 
-  this.gapPositions = [];
+  this.gap = false;
   this.fillGap = false;
+  this.gapLine = {
+    startX: 0,
+    startY: 0,
+    endX: 0,
+    endY: 0
+  };
 };
 
 Curve.prototype.draw = function(context) {
@@ -128,31 +142,18 @@ Curve.prototype.draw = function(context) {
 
   if (this.fillGap) {
     context.strokeStyle = 'black';
-    context.lineWidth = this.size + 1;
-    $.each(this.gapPositions, function(i, gapPosition) {
-      context.beginPath();
-      context.moveTo(gapPosition.x, gapPosition.y);
-      context.lineTo(gapPosition.x + gapPosition.dx, gapPosition.y + gapPosition.dx);
-      context.stroke();
-    });
+    context.lineWidth = this.size + 4;
+    context.beginPath();
+    context.moveTo(this.gapLine.startX, this.gapLine.startY);
+    context.lineTo(this.gapLine.endX, this.gapLine.endY);
+    context.stroke();
 
-    this.gapPositions.length = 0;
+    this.fillGap = false;
   }
 
   if (this.gap) {
     context.strokeStyle = '#555555';
-    this.gapPositions.push({
-      x: this.x,
-      y: this.y,
-      dx: dx,
-      dy: dy
-    });
-    this.fillGap = false;
   } else {
-    if (!this.fillGap) {
-      this.fillGap = true;
-    }
-
     context.strokeStyle = this.color;
   }
 
@@ -166,5 +167,16 @@ Curve.prototype.draw = function(context) {
 
   this.x = this.x + dx;
   this.y = this.y + dy;
+};
+
+Curve.prototype.onGapStart = function() {
+  this.gapLine.startX = this.x;
+  this.gapLine.startY = this.y;
+};
+
+Curve.prototype.onGapEnd = function() {
+  this.gapLine.endX = this.x;
+  this.gapLine.endY = this.y;
+  this.fillGap = true;
 };
 
