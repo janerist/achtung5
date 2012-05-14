@@ -1,0 +1,24 @@
+#finalresultsmodal.modal.fade
+    .modal-header
+        h3 Final results
+    .modal-body
+        #finalresults
+            table.table.table-striped
+                tbody(data-bind='foreach: players')
+                    tr
+                        td(style='width: 20px;')
+                            span(data-bind='text: ($index() + 1) + "."')
+                            span .
+                        td
+                            span(data-bind='style: { backgroundColor: color }') &nbsp;
+                            | &nbsp;
+                            span(data-bind='text: nickname')
+                        td(style='text-align: center;')
+                            span(data-bind='text: score')
+                            span  points
+    .modal-footer
+        #finalresults-footer
+            | New game starting in&nbsp;
+            // ko if: countdown() > 0
+            span.countdown(data-bind='text: countdown')
+            // /ko

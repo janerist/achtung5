@@ -60,22 +60,22 @@ var rooms = {
 _.each(rooms, function(room) {
   room.on('roundStarting', function(countdownTime) {
     io.sockets.in(room.id)
-      .emit('roundStarting', room.state, countdownTime);
+      .emit('roundStarting', countdownTime);
   });
 
   room.on('roundStarted', function() {
     io.sockets.in(room.id)
-      .emit('roundStarted', room.state, room.round, room.scoreLimit);
+      .emit('roundStarted', room.round, room.scoreLimit);
   });
 
   room.on('roundEnded', function(winner, points) {
     io.sockets.in(room.id)
-      .emit('roundEnded', room.state, winner, points);
+      .emit('roundEnded', winner, points);
   });
 
   room.on('gameEnded', function(winner) {
     io.sockets.in(room.id)
-      .emit('gameEnded', room.state, winner);
+      .emit('gameEnded', winner);
   });
 
   room.on('countdown', function(timeLeft) {
@@ -85,7 +85,7 @@ _.each(rooms, function(room) {
 
   room.on('reset', function() {
     io.sockets.in(room.id)
-      .emit('reset', room.state);
+      .emit('reset');
   });
 
   room.on('snapshot', function(snapshot) {

@@ -79,6 +79,18 @@ var Game = function(width, height) {
     self.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   };
 
+  this.displayWinner = function(winner) {
+    self.context.font = "bold 20px sans-serif";
+    self.context.textAlign = 'center';
+    self.context.textBaseline = 'middle';
+
+    self.context.fillStyle = '#555';
+    self.context.fillText(winner + ' wins the round!', self.width/2, self.height/2);
+
+    self.context.fillStyle = 'white';
+    self.context.fillText(winner + ' wins the round!', self.width/2 - 2, self.height/2 - 2);
+  };
+
   this.setPlayerDead = function(nickname) {
     var c = self.curves[nickname];
     if (c) {
@@ -151,7 +163,6 @@ Curve.prototype.draw = function(context) {
   context.moveTo(this.x, this.y);
   context.lineTo(this.x + dx, this.y + dy);
   context.stroke();
-
 
   this.x = this.x + dx;
   this.y = this.y + dy;

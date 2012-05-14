@@ -5,44 +5,45 @@ block content
         .span8
             h1 #{roomId}
     .row
-        .span8            
+        .span8
             .row
                 .span8
                     canvas#gamecanvas.hide
-            .row        
+            .row
                 .span8
-                    #statusline.well                        
-                        i.icon-info-sign    
-                        |            
+                    #statusline.well
+                        i.icon-info-sign
+                        | &nbsp;
                         span(data-bind='text: status')
-
+                        // ko if: countdown() > 0
                         span.countdown.pull-left(data-bind='text: countdown')
                         span.countdown.pull-right(data-bind='text: countdown')
-            
-        .span4            
+                        // /ko
+
+        .span4
             #scoreboard
-                #scoreboardstatus.well                    
-                    span(data-bind='if: roundNumber() > 0')                          
-                        | Round  
-                        span(data-bind='text: roundNumber')                            
-                    
+                #scoreboardstatus.well
+                    span(data-bind='if: roundNumber() > 0')
+                        | Round
+                        span(data-bind='text: roundNumber')
+
                     span(data-bind='if: scoreLimit() > 0', style='margin-left: 10px;')
-                        | Score limit: 
+                        | Score limit:
                         span(data-bind='text: scoreLimit')
 
                 #playerlist.well
                     table.table.table-condensed
                         thead
-                            tr                          
+                            tr
                                 th(style='width: 160px;') Player
                                 th Status
                                 th(style='text-align: center;') Score
                                 th &nbsp;
-                        tbody(data-bind='foreach: players')                        
-                            tr                            
+                        tbody(data-bind='foreach: players')
+                            tr
                                 td
-                                    span(data-bind='attr: { style: "background-color: " + color }') &nbsp;
-                                    | 
+                                    span(data-bind='style: { backgroundColor: color }') &nbsp;
+                                    | &nbsp;
                                     span(data-bind='text: nickname')
                                 td
                                     span(data-bind='text: status')
@@ -50,15 +51,15 @@ block content
                                     span(data-bind='text: score')
                                 td
                                     span.points(data-bind='if: pointsThisRound() >= 0')
-                                        | + 
+                                        | +
                                         span(data-bind='text: pointsThisRound')
             #chatarea
-                h3                 
+                h3
                     i.icon-comment(style='vertical-align: baseline;')
                     |  Chat
                 #chatscroll
                     ul#chatmessages(data-bind='foreach: messages')
-                        // ko if: type == "announcement" 
+                        // ko if: type == "announcement"
                         li.announcement(data-bind='')
                             span(data-bind='text: message')
                         // /ko
@@ -66,21 +67,22 @@ block content
                         // ko if: type == "chatmessage"
                         li.chatmessage(data-bind='if: type == "chatmessage"')
                             span.from(data-bind='text: from')
-                            | : 
+                            | :
                             span.message(data-bind='text: message')
                         // /ko
 
-                input#chatinput.span4(type='text')   
+                input#chatinput.span4(type='text')
 
     include includes/nicknamemodal
-        
+    include includes/finalresultsmodal
+
 append scripts
     script
-        var roomId = '#{roomId}';  
-        var socket = io.connect();      
-    script(src='/js/status.js')    
+        var roomId = '#{roomId}';
+        var socket = io.connect();
+    script(src='/js/status.js')
     script(src='/js/scoreboard.js')
     script(src='/js/chat.js')
     script(src='/js/game.js')
     script(src='/js/room.js')
-    
+

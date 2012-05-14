@@ -8,10 +8,6 @@ var StatusViewModel = function() {
         self.status(statusText);
     };
 
-    this.hideCountdown = function() {
-        self.countdown('');
-    };
-
     this.setCountdown = function(timeLeft) {
         self.countdown(timeLeft.toString());
     };

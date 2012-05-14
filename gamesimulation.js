@@ -100,7 +100,7 @@ var Curve = function() {
 Curve.DEFAULT_SIZE = 2;
 Curve.DEFAULT_SPEED = 1.3;
 Curve.DEFAULT_STEERSPEED = 3.5;
-Curve.GAP_DURATION = 15;
+Curve.GAP_DURATION = 12;
 
 Curve.prototype.update = function() {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
@@ -136,17 +136,18 @@ Curve.prototype.update = function() {
     if (withinBounds(gridX, gridY)) {
       grid[gridY][gridX] = 1;
     }
-  }
 
-  var collGridX = Math.round((this.x + dx*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
-  var collGridY = Math.round((this.y + dy*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
+    var collGridX = Math.round((this.x + dx*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
+    var collGridY = Math.round((this.y + dy*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
 
-  if (withinBounds(collGridX, collGridY)) {
-    var val = grid[collGridY][collGridX];
-    if (val === 1) {
-        this.isActive = false;
+    if (withinBounds(collGridX, collGridY)) {
+      var val = grid[collGridY][collGridX];
+      if (val === 1) {
+          this.isActive = false;
+      }
     }
   }
+
 };
 
 Curve.prototype.prepareNextGap = function() {

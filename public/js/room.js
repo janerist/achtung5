@@ -6,7 +6,11 @@ var nickname,
 
 ko.applyBindings(statusArea, document.getElementById('statusline'));
 ko.applyBindings(scoreboard, document.getElementById('scoreboard'));
+
 ko.applyBindings(chat, document.getElementById('chatarea'));
+
+ko.applyBindings(scoreboard, document.getElementById('finalresults'));
+ko.applyBindings(statusArea, document.getElementById('finalresults-footer'));
 
 window.keydown = {};
 
@@ -58,7 +62,8 @@ askForNickname();
 function askForNickname() {
   $('#nicknamemodal').modal({
       keyboard: false,
-      show: true
+      show: true,
+      backdrop: 'static'
   });
 
   $('#nickname').focus();
@@ -70,7 +75,7 @@ function setNickname() {
     alert('Please enter a nickname.');
     return;
   }
-  
+
   $('#nicknamemodal').modal('hide');
   init();
 }
@@ -86,13 +91,27 @@ function init() {
       return;
     }
 
-    // Set game status
-    setStatus(room.state, room.round, room.scoreLimit);
-
     // Players
     $.each(room.players, function(i, player) {
       scoreboard.addPlayer(player);
     });
+
+    // Set status
+    switch (room.state) {
+      case 'pregame':
+        statusArea.setStatus('Waiting for more players to join...');
+        break;
+      case 'preround':
+        statusArea.setStatus('New round starting...GET READY!');
+        break;
+      case 'round':
+        statusArea.setStatus('Round ' + room.round + ' in progress. \
+You will join the game next round.');
+        break;
+      case 'postgame':
+        statusArea.setStatus('Starting new game...');
+        break;
+    }
 
     // Chat
     $('#chatinput').on('keyup', function(e) {
@@ -156,69 +175,55 @@ function chatMessage(from, message) {
   scrollToBottom();
 }
 
-function roundStarting(state, countdownTime) {
-  setStatus(state);
+function roundStarting(countdownTime) {
+  statusArea.setStatus('New round starting...GET READY!');
   statusArea.setCountdown(countdownTime);
+
+  closeFinalResultsModal();
 }
 
-function roundStarted(state, round, scoreLimit) {
+function roundStarted(round, scoreLimit) {
   if (round == 1) {
     scoreboard.resetForGame();
   } else {
     scoreboard.resetForRound();
   }
-  
+
+  statusArea.setCountdown(0);
+  statusArea.setStatus('Round ' + round + ' in progress');
+
+  scoreboard.setRoundNumber(round);
   scoreboard.setScoreLimit(scoreLimit);
-  statusArea.hideCountdown();
-  setStatus(state, round);
 
   game.start(scoreboard.players());
 }
 
-function roundEnded(state, winner, points) {
+function roundEnded(winner, points) {
   scoreboard.setWinner(winner, points);
   scoreboard.setRoundNumber(0);
-  setStatus(state);
 
   game.stop();
+  game.displayWinner(winner);
 }
 
-function gameEnded(state, winner) {
-  setStatus(state);
-  statusArea.hideCountdown();
-
-  game.stop();
-}
-
-function reset(state) {
-  setStatus(state);
-  scoreboard.resetForGame();
-  statusArea.hideCountdown();
-
+function gameEnded(winner) {
   game.stop();
   game.clearCanvas();
 
-  chat.addAnnouncement('The room was reset due to lack of players.');
+  statusArea.setStatus('Game over. Starting new game...');
+  showFinalResultsModal();
 }
 
-function setStatus(state, round, scoreLimit) {
-  if (state == 'pregame') {
-    statusArea.setStatus('Waiting for more players to join...');
-  } else if (state == 'preround') {
-    statusArea.setStatus('New round starting...');
-  } else if (state == 'round') {
-    statusArea.setStatus('Round ' + round + ' in progress');
-  } else if (state == 'postgame') {
-    statusArea.setStatus('Game over. Starting new game...');
-  }
+function reset() {
+  statusArea.setStatus('Waiting for more players to join...');
+  scoreboard.resetForGame();
+  statusArea.setCountdown(0);
 
-  if (round) {
-    scoreboard.setRoundNumber(round);
-  }
+  game.stop();
+  game.clearCanvas();
+  closeFinalResultsModal();
 
-  if (scoreLimit) {
-    scoreboard.setScoreLimit(scoreLimit);
-  }
+  chat.addAnnouncement('The room was reset due to lack of players.');
 }
 
 function scrollToBottom() {
@@ -226,3 +231,14 @@ function scrollToBottom() {
   chatScroll.scrollTop = chatScroll.scrollHeight;
 }
 
+function showFinalResultsModal() {
+  $('#finalresultsmodal').modal({
+      keyboard: false,
+      show: true,
+      backdrop: 'static'
+  });
+}
+
+function closeFinalResultsModal() {
+  $('#finalresultsmodal').modal('hide');
+}
