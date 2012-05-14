@@ -36,7 +36,7 @@ var Game = function(width, height) {
     $.each(snapshot, function(nick, s) {
       var curve = self.curves[nick];
 
-      if (!curve.isActive) {
+      if (curve.isDead) {
         return;
       }
 
@@ -79,7 +79,7 @@ var Game = function(width, height) {
 
   this.draw = function() {
     $.each(self.curves, function(i, c) {
-      if (c.isActive) {
+      if (!c.isDead) {
         c.draw(self.context);
       }
     });
@@ -104,12 +104,10 @@ var Game = function(width, height) {
   this.setPlayerDead = function(nickname) {
     var c = self.curves[nickname];
     if (c) {
-      c.isActive = false;
+      c.isDead = true;
     }
   };
 };
-
-var collisionThreshold = 255;
 
 var Curve = function(color, width, height) {
   this.color = color;
@@ -117,7 +115,7 @@ var Curve = function(color, width, height) {
   this.size = 3;
   this.speed = 1.3;
   this.steerSpeed = 3.5;
-  this.isActive = true;
+  this.isDead = false;
 
   this.width = width;
   this.height = height;

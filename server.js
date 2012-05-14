@@ -4,7 +4,7 @@ var express = require('express'),
     _ = require('underscore'),
     util = require('util'),
     Room = require('./room'),
-    GameSimulation = require('./gamesimulation');
+    Game = require('./servergame');
 
 app.configure(function() {
   app.set('views', __dirname + '/views');
@@ -170,8 +170,8 @@ Please choose a different nickname.';
       state: room.state,
       round: room.round,
       scoreLimit: room.scoreLimit,
-      width: GameSimulation.WIDTH,
-      height: GameSimulation.HEIGHT,
+      width: Game.WIDTH,
+      height: Game.HEIGHT,
       players: room.players
     });
 

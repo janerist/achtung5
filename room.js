@@ -1,6 +1,6 @@
 var _ = require('underscore'),
     util = require('util'),
-    GameSimulation = require('./gamesimulation');
+    Game = require('./servergame');
 
 var Player = function(nickname, color) {
   this.nickname = nickname;
@@ -30,12 +30,12 @@ var Room = function(id) {
   this.round = 0;
 
   var that = this;
-  this.gameSimulation = new GameSimulation();
-  this.gameSimulation.on('snapshot', function(snapshot) {
+  this.game = new Game();
+  this.game.on('snapshot', function(snapshot) {
     that.emit('snapshot', snapshot);
   });
 
-  this.gameSimulation.on('playerDead', function(nickname) {
+  this.game.on('playerDead', function(nickname) {
     that.setPlayerDead(nickname, function(points) {
       that.emit('playerDead', nickname, points);
     });
@@ -84,7 +84,7 @@ Room.prototype.removePlayer = function(nickname) {
       if (this.state != 'pregame') {
         this.state = 'pregame';
         this._reset();
-        this.gameSimulation.stop();
+        this.game.stop();
       }
     }
   }
@@ -94,7 +94,7 @@ Room.prototype.setPlayerDead = function(nickname, fn) {
   var player = this.players[nickname];
   if (player) {
     player.isDead = true;
-    this.gameSimulation.curves[nickname].isActive = false;
+    this.game.curves[nickname].isDead = true;
 
     var playersAlive = _.filter(this.players, function(p) {
       return p.isPlaying && !p.isDead;
@@ -134,7 +134,7 @@ Room.prototype._startNewRound = function() {
       that.scoreLimit = 10 * (that.playerCountAtStartOfRound - 1);
       that.round = that.round + 1;
 
-      that.gameSimulation.start(that.players);
+      that.game.start(that.players);
 
       that.emit('roundStarted');
     } else {
@@ -144,7 +144,7 @@ Room.prototype._startNewRound = function() {
 };
 
 Room.prototype._endRound = function(winner) {
-  this.gameSimulation.stop();
+  this.game.stop();
 
   var points = this.playerCountAtStartOfRound;
   winner.score = winner.score + points;
@@ -205,7 +205,7 @@ Room.prototype._reset = function() {
 };
 
 Room.prototype.setInput = function(nickname, input) {
-  var curve = this.gameSimulation.curves[nickname];
+  var curve = this.game.curves[nickname];
   if (!curve) {
     return;
   }
