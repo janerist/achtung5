@@ -67,12 +67,8 @@ var Game = function(width, height) {
       var oldGapValue = curve.gap;
       curve.gap = s.gap;
 
-      if (!oldGapValue && curve.gap) {
-        curve.onGapStart();
-      }
-
       if (oldGapValue && !curve.gap) {
-        curve.onGapEnd();
+        curve.fillGap(s.gapLine, self.context);
       }
     });
   };
@@ -121,13 +117,6 @@ var Curve = function(color, width, height) {
   this.height = height;
 
   this.gap = false;
-  this.fillGap = false;
-  this.gapLine = {
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0
-  };
 };
 
 Curve.prototype.draw = function(context) {
@@ -137,17 +126,6 @@ Curve.prototype.draw = function(context) {
 
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed;
-
-  if (this.fillGap) {
-    context.strokeStyle = 'black';
-    context.lineWidth = this.size + 4;
-    context.beginPath();
-    context.moveTo(this.gapLine.startX, this.gapLine.startY);
-    context.lineTo(this.gapLine.endX, this.gapLine.endY);
-    context.stroke();
-
-    this.fillGap = false;
-  }
 
   if (this.gap) {
     context.strokeStyle = '#555555';
@@ -167,14 +145,12 @@ Curve.prototype.draw = function(context) {
   this.y = this.y + dy;
 };
 
-Curve.prototype.onGapStart = function() {
-  this.gapLine.startX = this.x;
-  this.gapLine.startY = this.y;
-};
-
-Curve.prototype.onGapEnd = function() {
-  this.gapLine.endX = this.x;
-  this.gapLine.endY = this.y;
-  this.fillGap = true;
+Curve.prototype.fillGap = function(gapLine, context) {
+  context.strokeStyle = 'black';
+  context.lineWidth = this.size + 4;
+  context.beginPath();
+  context.moveTo(gapLine.startX, gapLine.startY);
+  context.lineTo(gapLine.endX, gapLine.endY);
+  context.stroke();
 };
 

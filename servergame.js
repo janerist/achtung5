@@ -71,6 +71,10 @@ var Game = function() {
           angle: c.angle,
           gap: c.gapDuration > 0
       };
+      if (c.fillGap) {
+        snapshot[nickname].gapLine = c.gapLine;
+        c.fillGap = false;
+      }
     });
 
     self.emit('snapshot', snapshot);
@@ -95,14 +99,21 @@ var Curve = function() {
   this.isLeftKeyDown = false;
   this.isRightKeyDown = false;
 
-  this.gapDuration = 0;
-
-  this.prepareNextGap();
+  this.gapDuration = -1;
+  this.gapCooldown = Curve.GAP_INTERVAL;
+  this.gapLine = {
+    startX: 0,
+    startY: 0,
+    endX: 0,
+    endY: 0
+  };
+  this.fillGap = false;
 };
 
 Curve.DEFAULT_SIZE = 3;
 Curve.DEFAULT_SPEED = 1.3;
 Curve.DEFAULT_STEERSPEED = 3.5;
+Curve.GAP_INTERVAL = 180;
 Curve.GAP_DURATION = 12;
 
 Curve.prototype.update = function() {
@@ -125,40 +136,38 @@ Curve.prototype.update = function() {
   this.y = this.y < 0 ? Game.HEIGHT : this.y;
   this.y = this.y > Game.HEIGHT ? 0 : this.y;
 
-  if (this.gapDuration > 0) {
-    this.gapDuration = this.gapDuration - 1;
-    if (this.gapDuration === 0) {
-      this.prepareNextGap();
-    }
-
-    return; // no collision detection
+  if (--this.gapCooldown === 0) {
+    this.gapDuration = Curve.GAP_DURATION;
+    this.gapLine.startX = this.x;
+    this.gapLine.startY = this.y;
   }
 
-  var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
-  var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
+  if (--this.gapDuration === 0) {
+    this.gapCooldown = Curve.GAP_INTERVAL;
+    this.gapLine.endX = this.x;
+    this.gapLine.endY = this.y;
+    this.fillGap = true;
+  }
 
-  if (withinBounds(gridX, gridY)) {
-    if (grid[gridY][gridX] === 1 && gridX == this.prevGridX && gridY == this.prevGridY) {
-      return;
-    } else {
-      grid[gridY][gridX] += 1;
-      if (grid[gridY][gridX] > 1) {
-        this.isDead = true;
+  if (this.gapCooldown > 0) {
+    // collision detection
+    var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
+    var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
+
+    if (withinBounds(gridX, gridY)) {
+      if (grid[gridY][gridX] === 1 && gridX == this.prevGridX && gridY == this.prevGridY) {
+        return;
       } else {
-        this.prevGridX = gridX;
-        this.prevGridY = gridY;
+        grid[gridY][gridX] += 1;
+        if (grid[gridY][gridX] > 1) {
+          this.isDead = true;
+        } else {
+          this.prevGridX = gridX;
+          this.prevGridY = gridY;
+        }
       }
     }
   }
-
-};
-
-Curve.prototype.prepareNextGap = function() {
-  var that = this;
-
-  setTimeout(function() {
-      that.gapDuration = Curve.GAP_DURATION;
-  }, 3000);
 };
 
 function withinBounds(x, y) {
