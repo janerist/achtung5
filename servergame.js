@@ -100,7 +100,7 @@ var Curve = function() {
   this.prepareNextGap();
 };
 
-Curve.DEFAULT_SIZE = 2;
+Curve.DEFAULT_SIZE = 3;
 Curve.DEFAULT_SPEED = 1.3;
 Curve.DEFAULT_STEERSPEED = 3.5;
 Curve.GAP_DURATION = 12;
@@ -117,13 +117,6 @@ Curve.prototype.update = function() {
     this.angle = this.angle + this.steerSpeed;
   }
 
-  if (this.gapDuration > 0) {
-    this.gapDuration = this.gapDuration - 1;
-    if (this.gapDuration === 0) {
-      this.prepareNextGap();
-    }
-  }
-
   this.x = this.x + dx;
   this.y = this.y + dy;
 
@@ -132,24 +125,32 @@ Curve.prototype.update = function() {
   this.y = this.y < 0 ? Game.HEIGHT : this.y;
   this.y = this.y > Game.HEIGHT ? 0 : this.y;
 
-  if (this.gapDuration === 0) {
-    var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
-    var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
-
-    if (withinBounds(gridX, gridY)) {
-      grid[gridY][gridX] = 1;
+  if (this.gapDuration > 0) {
+    this.gapDuration = this.gapDuration - 1;
+    if (this.gapDuration === 0) {
+      this.prepareNextGap();
     }
 
-    var collGridX = Math.round((this.x + dx*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
-    var collGridY = Math.round((this.y + dy*(Curve.DEFAULT_SIZE+1))/Curve.DEFAULT_SIZE);
+    return; // no collision detection
+  }
 
-    if (withinBounds(collGridX, collGridY)) {
-      var val = grid[collGridY][collGridX];
-      if (val === 1) {
-          this.isDead = true;
+  var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
+  var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
+
+  if (withinBounds(gridX, gridY)) {
+    if (grid[gridY][gridX] === 1 && gridX == this.prevGridX && gridY == this.prevGridY) {
+      return;
+    } else {
+      grid[gridY][gridX] += 1;
+      if (grid[gridY][gridX] > 1) {
+        this.isDead = true;
+      } else {
+        this.prevGridX = gridX;
+        this.prevGridY = gridY;
       }
     }
   }
+
 };
 
 Curve.prototype.prepareNextGap = function() {
