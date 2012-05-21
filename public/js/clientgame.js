@@ -6,7 +6,6 @@ var Game = function(width, height) {
 
   this.curves = {};
 
-  this.drawRate = 1000.0/60.0;
   this.smoothTime = 0.25;
   this.correctionThreshold = 3;
 
@@ -21,14 +20,16 @@ var Game = function(width, height) {
       self.curves[p.nickname] = new Curve(p.color, self.width, self.height);
     });
 
-    self.drawInterval = setInterval(self.draw, self.drawRate);
     self.clearCanvas();
     self.isRunning = true;
+
+    self.lastTime = Date.now();
+    self.draw(self.lastTime);
   };
 
   this.stop = function() {
-    clearInterval(self.drawInterval);
     self.isRunning = false;
+    window.cancelAnimationFrame(self.raf);
   };
 
   this.addSnapshot = function(snapshot) {
@@ -73,10 +74,14 @@ var Game = function(width, height) {
     });
   };
 
-  this.draw = function() {
+  this.draw = function(time) {
+    var elapsedTime = (time - self.lastTime) / 1000;
+    self.lastTime = time;
+    self.raf = window.requestAnimationFrame(self.draw);
+
     $.each(self.curves, function(i, c) {
       if (!c.isDead) {
-        c.draw(self.context);
+        c.draw(self.context, elapsedTime);
       }
     });
   };
@@ -109,7 +114,7 @@ var Curve = function(color, width, height) {
   this.color = color;
   this.angle = 0.0;
   this.size = 3;
-  this.speed = 1.3;
+  this.speed = 88.0;
   this.steerSpeed = 3.5;
   this.isDead = false;
 
@@ -119,13 +124,13 @@ var Curve = function(color, width, height) {
   this.gap = false;
 };
 
-Curve.prototype.draw = function(context) {
+Curve.prototype.draw = function(context, elapsedTime) {
   if (!(this.x && this.y)) {
     return;
   }
 
-  var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
-  var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed;
+  var dx = Math.sin(this.angle * Math.PI / 180) * this.speed * elapsedTime;
+  var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed * elapsedTime;
 
   if (this.gap) {
     context.strokeStyle = '#555555';

@@ -33,6 +33,7 @@ var Game = function() {
       grid.push(row);
     }
 
+    self.lastTime = Date.now();
     self.updateInterval = setInterval(self.update, self.updateRate);
     self.snapshotInterval = setInterval(self.sendSnapshot, self.snapshotRate);
   };
@@ -44,12 +45,16 @@ var Game = function() {
   };
 
   this.update = function() {
+    var time = Date.now();
+    var elapsedTime = (time - self.lastTime) / 1000;
+    self.lastTime = time;
+
     _.each(self.curves, function(c, nickname) {
       if (c.isDead) {
         return;
       }
 
-      c.update();
+      c.update(elapsedTime);
 
       if (c.isDead) {
         if (self.activeCurves > 1) {
@@ -111,14 +116,14 @@ var Curve = function() {
 };
 
 Curve.DEFAULT_SIZE = 3;
-Curve.DEFAULT_SPEED = 1.3;
+Curve.DEFAULT_SPEED = 88.0;
 Curve.DEFAULT_STEERSPEED = 3.5;
 Curve.GAP_INTERVAL = 180;
 Curve.GAP_DURATION = 12;
 
-Curve.prototype.update = function() {
-  var dx = Math.sin(this.angle * Math.PI / 180) * this.speed;
-  var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed;
+Curve.prototype.update = function(elapsedTime) {
+  var dx = Math.sin(this.angle * Math.PI / 180) * this.speed * elapsedTime;
+  var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed * elapsedTime;
 
   if (this.isLeftKeyDown) {
     this.angle = this.angle - this.steerSpeed;
