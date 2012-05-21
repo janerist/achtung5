@@ -137,8 +137,8 @@ Curve.prototype.draw = function(context) {
   context.lineCap = 'round';
 
   context.beginPath();
-  context.moveTo(this.x, this.y);
-  context.lineTo(this.x + dx, this.y + dy);
+  context.moveTo((0.5 + this.x) << 0, (0.5 + this.y) << 0);
+  context.lineTo((0.5 + this.x + dx) << 0, (0.5 + this.y + dy) << 0);
   context.stroke();
 
   this.x = this.x + dx;
@@ -149,8 +149,7 @@ Curve.prototype.fillGap = function(gapLine, context) {
   context.strokeStyle = 'black';
   context.lineWidth = this.size + 4;
   context.beginPath();
-  context.moveTo(gapLine.startX, gapLine.startY);
-  context.lineTo(gapLine.endX, gapLine.endY);
+  context.moveTo((0.5 + gapLine.startX) << 0, (0.5 + gapLine.startY) << 0);
+  context.lineTo((0.5 + gapLine.endX) << 0, (0.5 + gapLine.endY) << 0);
   context.stroke();
 };
-
