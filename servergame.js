@@ -131,10 +131,10 @@ Curve.prototype.update = function() {
   this.x = this.x + dx;
   this.y = this.y + dy;
 
-  this.x = this.x < 0 ? Game.WIDTH : this.x;
-  this.x = this.x > Game.WIDTH ? 0 : this.x;
-  this.y = this.y < 0 ? Game.HEIGHT : this.y;
-  this.y = this.y > Game.HEIGHT ? 0 : this.y;
+  if (this.gapDuration > 1 &&
+    (this.x < 0 || this.x > Game.WIDTH || this.y < 0 || this.y > Game.HEIGHT)) {
+    this.gapDuration = 1;
+  }
 
   if (--this.gapCooldown === 0) {
     this.gapDuration = Curve.GAP_DURATION;
@@ -148,6 +148,11 @@ Curve.prototype.update = function() {
     this.gapLine.endY = this.y;
     this.fillGap = true;
   }
+
+  this.x = this.x < 0 ? Game.WIDTH : this.x;
+  this.x = this.x > Game.WIDTH ? 0 : this.x;
+  this.y = this.y < 0 ? Game.HEIGHT : this.y;
+  this.y = this.y > Game.HEIGHT ? 0 : this.y;
 
   if (this.gapCooldown > 0) {
     // collision detection
