@@ -17,7 +17,7 @@ var Game = function() {
   this.start = function(players) {
     self.curves = {};
     _.each(players, function(p) {
-      self.curves[p.nickname] = new Curve();
+      self.curves[p.nickname] = new ServerCurve();
       p.isPlaying = true;
     });
 
@@ -25,9 +25,9 @@ var Game = function() {
     self.activeCurves = _.size(self.curves);
 
     grid = [];
-    for (var y = 0; y < Game.HEIGHT; y += Curve.DEFAULT_SIZE) {
+    for (var y = 0; y < Game.HEIGHT; y += ServerCurve.DEFAULT_SIZE) {
       var row = [];
-      for (var x = 0; x < Game.WIDTH; x += Curve.DEFAULT_SIZE) {
+      for (var x = 0; x < Game.WIDTH; x += ServerCurve.DEFAULT_SIZE) {
         row.push(0);
       }
       grid.push(row);
@@ -74,8 +74,12 @@ var Game = function() {
           x: c.x,
           y: c.y,
           angle: c.angle,
+          size: c.size,
+          speed: c.speed,
+          steerSpeed: c.steerSpeed,
           gap: c.gapDuration > 0
       };
+
       if (c.fillGap) {
         snapshot[nickname].gapLine = c.gapLine;
         c.fillGap = false;
@@ -91,10 +95,10 @@ Game.HEIGHT = 480;
 
 util.inherits(Game, require('events').EventEmitter);
 
-var Curve = function() {
-  this.speed = Curve.DEFAULT_SPEED;
-  this.steerSpeed = Curve.DEFAULT_STEERSPEED;
-  this.size = Curve.DEFAULT_SIZE;
+var ServerCurve = function() {
+  this.speed = ServerCurve.DEFAULT_SPEED;
+  this.steerSpeed = ServerCurve.DEFAULT_STEERSPEED;
+  this.size = ServerCurve.DEFAULT_SIZE;
   this.x = Math.random() * Game.WIDTH;
   this.y = Math.random() * Game.HEIGHT;
 
@@ -105,7 +109,7 @@ var Curve = function() {
   this.isRightKeyDown = false;
 
   this.gapDuration = -1;
-  this.gapCooldown = Curve.GAP_INTERVAL;
+  this.gapCooldown = ServerCurve.GAP_INTERVAL;
   this.gapLine = {
     startX: 0,
     startY: 0,
@@ -115,13 +119,13 @@ var Curve = function() {
   this.fillGap = false;
 };
 
-Curve.DEFAULT_SIZE = 3;
-Curve.DEFAULT_SPEED = 88.0;
-Curve.DEFAULT_STEERSPEED = 3.5;
-Curve.GAP_INTERVAL = 180;
-Curve.GAP_DURATION = 12;
+ServerCurve.DEFAULT_SIZE = 3;
+ServerCurve.DEFAULT_SPEED = 88.0;
+ServerCurve.DEFAULT_STEERSPEED = 3.5;
+ServerCurve.GAP_INTERVAL = 180;
+ServerCurve.GAP_DURATION = 12;
 
-Curve.prototype.update = function(elapsedTime) {
+ServerCurve.prototype.update = function(elapsedTime) {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed * elapsedTime;
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed * elapsedTime;
 
@@ -142,13 +146,13 @@ Curve.prototype.update = function(elapsedTime) {
   }
 
   if (--this.gapCooldown === 0) {
-    this.gapDuration = Curve.GAP_DURATION;
+    this.gapDuration = ServerCurve.GAP_DURATION;
     this.gapLine.startX = this.x;
     this.gapLine.startY = this.y;
   }
 
   if (--this.gapDuration === 0) {
-    this.gapCooldown = Curve.GAP_INTERVAL;
+    this.gapCooldown = ServerCurve.GAP_INTERVAL;
     this.gapLine.endX = this.x;
     this.gapLine.endY = this.y;
     this.fillGap = true;
@@ -161,10 +165,11 @@ Curve.prototype.update = function(elapsedTime) {
 
   if (this.gapCooldown > 0) {
     // collision detection
-    var gridX = Math.round(this.x / Curve.DEFAULT_SIZE);
-    var gridY = Math.round(this.y / Curve.DEFAULT_SIZE);
+    var gridX = Math.round(this.x / ServerCurve.DEFAULT_SIZE);
+    var gridY = Math.round(this.y / ServerCurve.DEFAULT_SIZE);
 
-    if (withinBounds(gridX, gridY)) {
+    if (gridX >= 0 && gridX < Game.WIDTH/ServerCurve.DEFAULT_SIZE &&
+      gridY >= 0 && gridY < Game.HEIGHT/ServerCurve.DEFAULT_SIZE) {
       if (grid[gridY][gridX] === 1 && gridX == this.prevGridX && gridY == this.prevGridY) {
         return;
       } else {
@@ -179,10 +184,5 @@ Curve.prototype.update = function(elapsedTime) {
     }
   }
 };
-
-function withinBounds(x, y) {
-  return x >= 0 && x < Game.WIDTH/Curve.DEFAULT_SIZE &&
-    y >= 0 && y < Game.HEIGHT/Curve.DEFAULT_SIZE;
-}
 
 module.exports = Game;

@@ -17,7 +17,7 @@ var Game = function(width, height) {
   this.start = function(players) {
     self.curves = {};
     $.each(players, function(i, p) {
-      self.curves[p.nickname] = new Curve(p.color, self.width, self.height);
+      self.curves[p.nickname] = new ClientCurve(p.color);
     });
 
     self.clearCanvas();
@@ -41,36 +41,30 @@ var Game = function(width, height) {
         return;
       }
 
-      if (!curve.x) {
+      diffX = s.x - curve.x;
+      if (Math.abs(diffX) > self.correctionThreshold) {
         curve.x = s.x;
       } else {
-        diffX = s.x - curve.x;
-        if (Math.abs(diffX) > self.correctionThreshold) {
-          curve.x = s.x;
-        } else {
-          curve.x = curve.x + diffX * self.smoothTime;
-        }
+        curve.x = curve.x + diffX * self.smoothTime;
       }
 
-      if (!curve.y) {
+      diffY = s.y - curve.y;
+      if (Math.abs(diffY) > self.correctionThreshold) {
         curve.y = s.y;
       } else {
-        diffY = s.y - curve.y;
-        if (Math.abs(diffY) > self.correctionThreshold) {
-          curve.y = s.y;
-        } else {
-          curve.y = curve.y + diffY * self.smoothTime;
-        }
+        curve.y = curve.y + diffY * self.smoothTime;
       }
 
       curve.angle = s.angle;
+      curve.size = s.size;
+      curve.speed = s.speed;
+      curve.steerSpeed = s.steerSpeed;
 
-      var oldGapValue = curve.gap;
-      curve.gap = s.gap;
-
-      if (oldGapValue && !curve.gap) {
-        curve.fillGap(s.gapLine, self.context);
+      if (curve.gap && !s.gap) {
+        curve.fillGap(self.context, s.gapLine);
       }
+
+      curve.gap = s.gap
     });
   };
 
@@ -110,25 +104,18 @@ var Game = function(width, height) {
   };
 };
 
-var Curve = function(color, width, height) {
+var ClientCurve = function(color) {
   this.color = color;
-  this.angle = 0.0;
-  this.size = 3;
-  this.speed = 88.0;
-  this.steerSpeed = 3.5;
   this.isDead = false;
-
-  this.width = width;
-  this.height = height;
-
-  this.gap = false;
+  this.x = 0.0;
+  this.y = 0.0;
+  this.speed = 0.0;
+  this.steerSpeed = 0.0;
+  this.size = 0;
+  this.angle = 0.0;
 };
 
-Curve.prototype.draw = function(context, elapsedTime) {
-  if (!(this.x && this.y)) {
-    return;
-  }
-
+ClientCurve.prototype.draw = function(context, elapsedTime) {
   var dx = Math.sin(this.angle * Math.PI / 180) * this.speed * elapsedTime;
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed * elapsedTime;
 
@@ -150,7 +137,7 @@ Curve.prototype.draw = function(context, elapsedTime) {
   this.y = this.y + dy;
 };
 
-Curve.prototype.fillGap = function(gapLine, context) {
+ClientCurve.prototype.fillGap = function(context, gapLine) {
   context.strokeStyle = 'black';
   context.lineWidth = this.size + 4;
   context.beginPath();
