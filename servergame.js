@@ -1,7 +1,9 @@
 var _ = require('underscore'),
-    util = require('util');
-
-var grid = [];
+    util = require('util'),
+    collisionGrid,
+    collisionGridCellSize,
+    collisionGridWidth,
+    collisionGridHeight;
 
 var Game = function() {
   var self = this;
@@ -24,13 +26,22 @@ var Game = function() {
     self.isRunning = true;
     self.activeCurves = _.size(self.curves);
 
-    grid = [];
-    for (var y = 0; y < Game.HEIGHT; y += ServerCurve.DEFAULT_SIZE) {
+    collisionGridCellSize = ServerCurve.DEFAULT_SIZE;
+    collisionGridWidth = Game.WIDTH / collisionGridCellSize;
+    collisionGridHeight = Game.HEIGHT / collisionGridCellSize;
+
+    if (typeof collisionGrid !== 'undefined') {
+      collisionGrid.length = 0;
+    } else {
+      collisionGrid = [];
+    }
+
+    for (var y = 0; y < Game.HEIGHT; y += collisionGridCellSize) {
       var row = [];
-      for (var x = 0; x < Game.WIDTH; x += ServerCurve.DEFAULT_SIZE) {
+      for (var x = 0; x < Game.WIDTH; x += collisionGridCellSize) {
         row.push(0);
       }
-      grid.push(row);
+      collisionGrid.push(row);
     }
 
     self.lastTime = Date.now();
@@ -164,23 +175,28 @@ ServerCurve.prototype.update = function(elapsedTime) {
   this.y = this.y > Game.HEIGHT ? 0 : this.y;
 
   if (this.gapCooldown > 0) {
-    // collision detection
-    var gridX = Math.round(this.x / ServerCurve.DEFAULT_SIZE);
-    var gridY = Math.round(this.y / ServerCurve.DEFAULT_SIZE);
 
-    if (gridX >= 0 && gridX < Game.WIDTH/ServerCurve.DEFAULT_SIZE &&
-      gridY >= 0 && gridY < Game.HEIGHT/ServerCurve.DEFAULT_SIZE) {
-      if (grid[gridY][gridX] === 1 && gridX == this.prevGridX && gridY == this.prevGridY) {
-        return;
-      } else {
-        grid[gridY][gridX] += 1;
-        if (grid[gridY][gridX] > 1) {
-          this.isDead = true;
-        } else {
-          this.prevGridX = gridX;
-          this.prevGridY = gridY;
-        }
-      }
+    // collision detection
+    var gridX = 0.5 + this.x / collisionGridCellSize << 0;
+    var gridY = 0.5 + this.y / collisionGridCellSize << 0;
+
+    if (gridX < 0 || gridX >= collisionGridWidth ||
+      gridY < 0 || gridY >= collisionGridHeight) {
+      return;
+    }
+
+    var gridValue = collisionGrid[gridY][gridX];
+    if (gridX == this.prevGridX && gridY == this.prevGridY && gridValue === 1) {
+      return;
+    }
+
+    gridValue++;
+    this.prevGridX = gridX;
+    this.prevGridY = gridY;
+    collisionGrid[gridY][gridX] = gridValue;
+
+    if (gridValue > 1) {
+      this.isDead = true;
     }
   }
 };
