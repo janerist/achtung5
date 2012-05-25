@@ -90,7 +90,7 @@ _.each(rooms, function(room) {
 
   room.on('snapshot', function(snapshot) {
     io.sockets.in(room.id)
-      .emit('snapshot', snapshot);
+      .volatile.emit('snapshot', snapshot);
   });
 
   room.on('playerDead', function(nickname, points) {
