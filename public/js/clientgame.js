@@ -64,7 +64,7 @@ var Game = function(width, height) {
         curve.fillGap(self.context, s.gapLine);
       }
 
-      curve.gap = s.gap
+      curve.gap = s.gap;
     });
   };
 

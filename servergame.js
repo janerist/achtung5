@@ -132,7 +132,7 @@ var ServerCurve = function() {
 
 ServerCurve.DEFAULT_SIZE = 3;
 ServerCurve.DEFAULT_SPEED = 88.0;
-ServerCurve.DEFAULT_STEERSPEED = 3.5;
+ServerCurve.DEFAULT_STEERSPEED = 245.0;
 ServerCurve.GAP_INTERVAL = 180;
 ServerCurve.GAP_DURATION = 12;
 
@@ -141,11 +141,11 @@ ServerCurve.prototype.update = function(elapsedTime) {
   var dy = -Math.cos(this.angle * Math.PI / 180) * this.speed * elapsedTime;
 
   if (this.isLeftKeyDown) {
-    this.angle = this.angle - this.steerSpeed;
+    this.angle = this.angle - (this.steerSpeed * elapsedTime);
   }
 
   if (this.isRightKeyDown) {
-    this.angle = this.angle + this.steerSpeed;
+    this.angle = this.angle + (this.steerSpeed * elapsedTime);
   }
 
   this.x = this.x + dx;
