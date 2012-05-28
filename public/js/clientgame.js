@@ -37,7 +37,7 @@ var Game = function(width, height) {
     $.each(snapshot, function(nick, s) {
       var curve = self.curves[nick];
 
-      if (curve.isDead) {
+      if (!curve || curve.isDead) {
         return;
       }
 

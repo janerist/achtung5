@@ -6,8 +6,6 @@ var Player = function(nickname, color) {
   this.nickname = nickname;
   this.color = color;
   this.score = 0;
-  this.isPlaying = false;
-  this.isDead = false;
 };
 
 var Room = function(id) {
@@ -23,22 +21,40 @@ var Room = function(id) {
     '#ff00ff', // pink
     '#ff8000' // orange
   ];
-  //possible states: pregame, preRound, round, postgame
+
+  // possible states: pregame, preRound, round, postgame
   this.state = 'pregame';
-  this.playerCountAtStartOfRound = 0;
+
+  this.game = new Game();
   this.scoreLimit = 0;
   this.round = 0;
 
   var that = this;
-  this.game = new Game();
+
   this.game.on('snapshot', function(snapshot) {
     that.emit('snapshot', snapshot);
   });
 
   this.game.on('playerDead', function(nickname) {
-    that.setPlayerDead(nickname, function(points) {
-      that.emit('playerDead', nickname, points);
-    });
+    var player = that.players[nickname];
+    var points = _.size(that.game.curves) - that.game.curvesAlive;
+
+    if (player) {
+      player.score += points;
+    }
+
+    that.emit('playerDead', nickname, points);
+  });
+
+  this.game.on('winner', function(nickname) {
+    var player = that.players[nickname];
+    var points = _.size(that.game.curves);
+    if (player) {
+      player.score += points;
+    }
+
+    that.emit('roundEnded', nickname, points);
+    that._endRound();
   });
 };
 
@@ -81,36 +97,15 @@ Room.prototype.removePlayer = function(nickname) {
     this.colors.splice(0, 0, player.color);
 
     if (this.getPlayerCount() < Room.REQUIRED_PLAYERS) {
+      if (this.game.isRunning) {
+        this.game.stop();
+      }
+
       if (this.state != 'pregame') {
         this.state = 'pregame';
         this._reset();
-        this.game.stop();
       }
     }
-  }
-};
-
-Room.prototype.setPlayerDead = function(nickname, fn) {
-  var player = this.players[nickname];
-  if (player) {
-    player.isDead = true;
-    this.game.curves[nickname].isDead = true;
-
-    var playersAlive = _.filter(this.players, function(p) {
-      return p.isPlaying && !p.isDead;
-    });
-
-    var points = this.playerCountAtStartOfRound - playersAlive.length;
-    fn(points);
-
-    player.score = player.score + points;
-
-    if (playersAlive.length == 1) {
-      var winner = this.players[playersAlive[0].nickname];
-      this._endRound(winner);
-    }
-
-    return points;
   }
 };
 
@@ -130,8 +125,7 @@ Room.prototype._startNewRound = function() {
     if (countdownTimeLeft === 0) {
       clearInterval(that.countdownInterval);
       that.state = 'round';
-      that.playerCountAtStartOfRound = that.getPlayerCount();
-      that.scoreLimit = 10 * (that.playerCountAtStartOfRound - 1);
+      that.scoreLimit = 10 * (that.getPlayerCount() - 1);
       that.round = that.round + 1;
 
       that.game.start(that.players);
@@ -143,13 +137,7 @@ Room.prototype._startNewRound = function() {
   }, 1000);
 };
 
-Room.prototype._endRound = function(winner) {
-  this.game.stop();
-
-  var points = this.playerCountAtStartOfRound;
-  winner.score = winner.score + points;
-  this.emit('roundEnded', winner.nickname, points);
-
+Room.prototype._endRound = function() {
   var maxScore = _.max(this.players, function(p) { return p.score; }).score;
   if (maxScore >= this.scoreLimit) {
     // one or more players have reached the score limit
@@ -179,8 +167,6 @@ Room.prototype._endGame = function(winner) {
     if (countdownTimeLeft === 0) {
       clearInterval(that.countdownInterval);
       _.each(that.players, function(p) {
-        p.isPlaying = false;
-        p.isDead = false;
         p.score = 0;
       });
 
@@ -194,8 +180,6 @@ Room.prototype._endGame = function(winner) {
 
 Room.prototype._reset = function() {
   _.each(this.players, function(p) {
-    p.isPlaying = false;
-    p.isDead = false;
     p.score = 0;
   });
 

@@ -20,11 +20,10 @@ var Game = function() {
     self.curves = {};
     _.each(players, function(p) {
       self.curves[p.nickname] = new ServerCurve();
-      p.isPlaying = true;
     });
 
     self.isRunning = true;
-    self.activeCurves = _.size(self.curves);
+    self.curvesAlive = _.size(self.curves);
 
     collisionGridCellSize = ServerCurve.DEFAULT_SIZE;
     collisionGridWidth = Game.WIDTH / collisionGridCellSize;
@@ -68,14 +67,25 @@ var Game = function() {
       c.update(elapsedTime);
 
       if (c.isDead) {
-        if (self.activeCurves > 1) {
+        if (self.curvesAlive > 1) {
+          self.curvesAlive = self.curvesAlive - 1;
           self.emit('playerDead', nickname);
-          self.activeCurves = self.activeCurves - 1;
         } else {
           c.isDead = false;
         }
       }
     });
+
+    if (self.curvesAlive == 1) {
+      self.stop();
+
+      var winner = _.filter(self.curves, function(c, nick) {
+        c.nickname = nick;
+        return !c.isDead;
+      })[0].nickname;
+
+      self.emit('winner', winner);
+    }
   };
 
   this.sendSnapshot = function() {

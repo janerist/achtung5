@@ -56,24 +56,20 @@ describe('when a player is added to the room', function() {
     room.players.foo.score.should.equal(0);
   });
 
-  describe('when the room is in the "pregame" state', function() {
+  describe('when the room is in the "pregame" state and there is one other \
+player in the room', function() {
     beforeEach(function() {
       room.state = 'pregame';
+      room.addPlayer('player1');
     });
 
-    describe('when there is 1 player in the room', function() {
-      beforeEach(function() {
-        room.addPlayer('player1');
+    it('should start a new round', function(done) {
+      room.on('roundStarting', function() {
+        room.state.should.equal('preround');
+        done();
       });
 
-      it('should start a new round', function(done) {
-        room.on('roundStarting', function() {
-          room.state.should.equal('preround');
-          done();
-        });
-
-        room.addPlayer('player2');
-      });
+      room.addPlayer('player2');
     });
   });
 });
@@ -90,6 +86,46 @@ describe('when a player is removed from the room', function() {
     room.getPlayerCount().should.equal(1);
     room.removePlayer('player1');
     room.getPlayerCount().should.equal(0);
+  });
+
+  it('should put the player\'s color back into the color pool', function() {
+    room.colors.length.should.equal(Room.MAX_PLAYERS - 1);
+    room.colors[0].should.equal('#00ff00');
+
+    room.removePlayer('player1');
+
+    room.colors.length.should.equal(Room.MAX_PLAYERS);
+    room.colors[0].should.equal('#ff0000');
+  });
+
+  describe('when there is only one player left in the room', function() {
+    it('should reset the room', function(done) {
+
+      room.on('roundStarting', function() {
+        room.removePlayer('player1');
+      });
+
+      room.on('reset', function() {
+        done();
+      });
+
+      room.addPlayer('player2');
+    });
+
+    it('should stop the game simulation if running', function(done) {
+      room.on('roundStarting', function() {
+        room.game.start(room.players);
+        room.game.isRunning.should.equal(true);
+        room.removePlayer('player1');
+      });
+
+      room.on('reset', function() {
+        room.game.isRunning.should.equal(false);
+        done();
+      });
+
+      room.addPlayer('player2');
+    });
   });
 });
 

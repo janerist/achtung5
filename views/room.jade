@@ -24,11 +24,11 @@ block content
             #scoreboard
                 #scoreboardstatus.well
                     span(data-bind='if: roundNumber() > 0')
-                        | Round
+                        | Round&nbsp;
                         span(data-bind='text: roundNumber')
 
                     span(data-bind='if: scoreLimit() > 0', style='margin-left: 10px;')
-                        | Score limit:
+                        | Score limit:&nbsp;
                         span(data-bind='text: scoreLimit')
 
                 #playerlist.well
