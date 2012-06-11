@@ -16,22 +16,22 @@ block content
                         | &nbsp;
                         span(data-bind='text: status')
                         // ko if: countdown() > 0
-                        span.countdown.pull-left(data-bind='text: countdown')
-                        span.countdown.pull-right(data-bind='text: countdown')
+                        span.bigdigit.pull-left(data-bind='text: countdown')
+                        span.bigdigit.pull-right(data-bind='text: countdown')
                         // /ko
 
         .span4
             #scoreboard
                 #scoreboardstatus.well
-                    span(data-bind='if: roundNumber() > 0')
+                    span.pull-left(data-bind='if: roundNumber() > 0')
                         | Round&nbsp;
-                        span(data-bind='text: roundNumber')
+                        span.bigdigit(data-bind='text: roundNumber')
 
-                    span(data-bind='if: scoreLimit() > 0', style='margin-left: 10px;')
-                        | Score limit:&nbsp;
-                        span(data-bind='text: scoreLimit')
+                    span.pull-right(data-bind='if: scoreLimit() > 0', style='margin-left: 10px;')
+                        | Score limit&nbsp;
+                        span.bigdigit(data-bind='text: scoreLimit')
 
-                #playerlist.well
+                #playerlist
                     table.table.table-condensed
                         thead
                             tr
@@ -48,15 +48,12 @@ block content
                                 td
                                     span(data-bind='text: status')
                                 td(style='text-align: center;')
-                                    span(data-bind='text: score')
+                                    span.bigdigit(data-bind='text: score')
                                 td
                                     span.points(data-bind='if: pointsThisRound() >= 0')
                                         | +
                                         span(data-bind='text: pointsThisRound')
             #chatarea
-                h3
-                    i.icon-comment(style='vertical-align: baseline;')
-                    |  Chat
                 #chatscroll
                     ul#chatmessages(data-bind='foreach: messages')
                         // ko if: type == "announcement"
@@ -71,7 +68,7 @@ block content
                             span.message(data-bind='text: message')
                         // /ko
 
-                input#chatinput.span4(type='text')
+                input#chatinput.span4(type='text', placeholder='say something')
 
     include includes/nicknamemodal
     include includes/finalresultsmodal

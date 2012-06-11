@@ -17,7 +17,7 @@ var Room = function(id) {
     '#0000ff', // blue
     '#ffff00', // yellow
     '#00ffff', // cyan
-    '#ffffff', // white
+    '#a52a2a', // brown
     '#ff00ff', // pink
     '#ff8000' // orange
   ];

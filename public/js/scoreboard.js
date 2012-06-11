@@ -42,7 +42,6 @@ var ScoreboardViewModel = function() {
       if (p.nickname == nickname) {
         p.score(p.score() + points);
         p.pointsThisRound(points);
-        p.status('WINNER');
       }
     });
 

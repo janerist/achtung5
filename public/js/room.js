@@ -200,7 +200,6 @@ function roundStarted(round, scoreLimit) {
 
 function roundEnded(winner, points) {
   scoreboard.setWinner(winner, points);
-  scoreboard.setRoundNumber(0);
 
   game.stop();
   game.displayWinner(winner);
