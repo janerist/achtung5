@@ -100,11 +100,6 @@ var Game = function() {
           steerSpeed: c.steerSpeed,
           gap: c.gapDuration > 0
       };
-
-      if (c.fillGap) {
-        snapshot[nickname].gapLine = c.gapLine;
-        c.fillGap = false;
-      }
     });
 
     self.emit('snapshot', snapshot);
@@ -131,13 +126,6 @@ var ServerCurve = function() {
 
   this.gapDuration = -1;
   this.gapCooldown = ServerCurve.GAP_INTERVAL;
-  this.gapLine = {
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0
-  };
-  this.fillGap = false;
 };
 
 ServerCurve.DEFAULT_SIZE = 3;
@@ -168,15 +156,10 @@ ServerCurve.prototype.update = function(elapsedTime) {
 
   if (--this.gapCooldown === 0) {
     this.gapDuration = ServerCurve.GAP_DURATION;
-    this.gapLine.startX = this.x;
-    this.gapLine.startY = this.y;
   }
 
   if (--this.gapDuration === 0) {
     this.gapCooldown = ServerCurve.GAP_INTERVAL;
-    this.gapLine.endX = this.x;
-    this.gapLine.endY = this.y;
-    this.fillGap = true;
   }
 
   this.x = this.x < 0 ? Game.WIDTH : this.x;

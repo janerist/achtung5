@@ -61,7 +61,8 @@ var Game = function(width, height) {
       curve.steerSpeed = s.steerSpeed;
 
       if (curve.gap && !s.gap) {
-        curve.fillGap(self.context, s.gapLine);
+        curve.fillGap(self.context);
+        curve.gapLine.length = 0;
       }
 
       curve.gap = s.gap;
@@ -113,6 +114,7 @@ var ClientCurve = function(color) {
   this.steerSpeed = 0.0;
   this.size = 0;
   this.angle = 0.0;
+  this.gapLine = [];
 };
 
 ClientCurve.prototype.draw = function(context, elapsedTime) {
@@ -121,6 +123,9 @@ ClientCurve.prototype.draw = function(context, elapsedTime) {
 
   if (this.gap) {
     context.strokeStyle = '#555555';
+    this.gapLine.push({
+      x: this.x, y: this.y, dx: dx, dy: dy
+    });
   } else {
     context.strokeStyle = this.color;
   }
@@ -137,11 +142,14 @@ ClientCurve.prototype.draw = function(context, elapsedTime) {
   this.y = this.y + dy;
 };
 
-ClientCurve.prototype.fillGap = function(context, gapLine) {
+ClientCurve.prototype.fillGap = function(context) {
   context.strokeStyle = 'black';
-  context.lineWidth = this.size + 4;
+  context.lineWidth = this.size + 1;
   context.beginPath();
-  context.moveTo((0.5 + gapLine.startX) << 0, (0.5 + gapLine.startY) << 0);
-  context.lineTo((0.5 + gapLine.endX) << 0, (0.5 + gapLine.endY) << 0);
+  $.each(this.gapLine, function(i, g) {
+    context.moveTo((0.5 + g.x) << 0, (0.5 + g.y) << 0);
+    context.lineTo((0.5 + g.x + g.dx) << 0, (0.5 + g.y + g.dy) << 0);
+  });
+
   context.stroke();
 };
