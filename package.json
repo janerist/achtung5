@@ -2,7 +2,7 @@
   "name": "achtung5",
   "description": "An HTML5 networked multiplayer version of the classic Achtung die Kurve! game",
   "author": "janerist <jan.erik.strom@gmail.com>",
-  "version": "0.0.1-1",
+  "version": "0.0.1",
   "dependencies": {
     "express": "2.5.x",
     "jade": ">= 0.0.1",
