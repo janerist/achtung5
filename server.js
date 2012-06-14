@@ -49,6 +49,7 @@ io.configure('production', function() {
 });
 
 var port = process.env['PORT_WWW'] || 3000;
+console.log('using port ' + port);
 app.listen(port);
 
 var rooms = {
