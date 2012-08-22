@@ -11,7 +11,7 @@ var RoomListViewModel = function() {
   var self = this;
 
   this.rooms = ko.observableArray([]);
-  
+
   this.addRoom = function(room) {
     self.rooms.push(new Room(room));
   };
@@ -38,10 +38,11 @@ socket.on('rooms', function(rooms) {
     $('#' + room.id).popover({
       content: function() { return $('#popover-' + room.id).html(); },
       offset: 10,
-      placement: 'bottom'
+      placement: 'bottom',
+      trigger: 'hover'
     });
   });
-  
+
   $('#rooms').show();
   $('#loadingrooms').hide();
 });

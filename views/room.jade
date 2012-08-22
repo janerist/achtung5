@@ -8,7 +8,7 @@ block content
         .span8
             .row
                 .span8
-                    canvas#gamecanvas.hide
+                    canvas#gamecanvas.hide.img-rounded
             .row
                 .span8
                     #statusline.well
@@ -22,14 +22,16 @@ block content
 
         .span4
             #scoreboard
-                #scoreboardstatus.well
+                #scoreboardstatus
                     span.pull-left(data-bind='if: roundNumber() > 0')
                         | Round&nbsp;
-                        span.bigdigit(data-bind='text: roundNumber')
+                        span.bigdigit.label(data-bind='text: roundNumber')
 
                     span.pull-right(data-bind='if: scoreLimit() > 0', style='margin-left: 10px;')
                         | Score limit&nbsp;
-                        span.bigdigit(data-bind='text: scoreLimit')
+                        span.bigdigit.label(data-bind='text: scoreLimit')
+
+                hr
 
                 #playerlist
                     table.table.table-condensed
