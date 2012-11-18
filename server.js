@@ -1,6 +1,7 @@
 var express = require('express'),
-    app = express.createServer(),
-    io = require('socket.io').listen(app),
+    app = express(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server),
     _ = require('underscore'),
     util = require('util'),
     Room = require('./room'),
@@ -50,7 +51,7 @@ io.configure('production', function() {
 
 var port = process.env['PORT_WWW'] || 3000;
 console.log('using port ' + port);
-app.listen(port);
+server.listen(port);
 
 var rooms = {
   room1: new Room('room1'),
