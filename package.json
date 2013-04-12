@@ -4,7 +4,7 @@
   "author": "janerist <jan.erik.strom@gmail.com>",
   "version": "0.0.1",
   "dependencies": {
-    "express": "3.0.x",
+    "express": "3.1.x",
     "jade": ">= 0.0.1",
     "socket.io": "0.9.x",
     "underscore": "1.4.x"
