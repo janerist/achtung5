@@ -10,7 +10,7 @@ APP_DIR = '/home/janerist/apps/achtung5'
 def deploy():
     sync_changes()
     with cd(APP_DIR):
-        run('npm install')
+        run('npm install --production')
         run('npm test')
 
     sudo('supervisorctl restart achtung5')
